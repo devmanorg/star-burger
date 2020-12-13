@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
+import json
 
 
 from .models import Product
@@ -59,4 +60,11 @@ def product_list_api(request):
 
 def register_order(request):
     # TODO это лишь заглушка
+    try:
+        order = json.loads(request.body.decode())
+        print(order)
+    except ValueError:
+        return JsonResponse({
+            'error': 'cannot parse json order',
+        })
     return JsonResponse({})
