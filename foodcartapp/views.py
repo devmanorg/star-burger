@@ -1,6 +1,9 @@
+from typing import OrderedDict
 from django.http import JsonResponse
 from django.templatetags.static import static
 import json
+from datetime import datetime
+from .models import Order, OrderProduct
 
 
 from .models import Product
@@ -58,13 +61,28 @@ def product_list_api(request):
     })
 
 
-def register_order(request):
-    # TODO это лишь заглушка
+def register_order(request):    
     try:
-        order = json.loads(request.body.decode())
-        print(order)
+        order_data = json.loads(request.body.decode())
+        order = Order.objects.create(            
+            address=order_data["address"],
+            firstname=order_data["firstname"],
+            lastname=order_data["lastname"],
+            phonenumber=order_data["phonenumber"]
+        )
+
+        for i in order_data["products"]:                
+            ordered_product = OrderProduct.objects.create(
+                product = Product.objects.get(id=int(i["product"])),    
+                quantity = int(i["quantity"]),
+                order = order
+            )
+            order.ordered_products.add(ordered_product)                               
+        order.save()
+        
+        return JsonResponse({"id": 1, "message":"Created"})
     except ValueError:
         return JsonResponse({
             'error': 'cannot parse json order',
         })
-    return JsonResponse({})
+    
