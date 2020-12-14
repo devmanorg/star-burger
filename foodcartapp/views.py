@@ -10,6 +10,7 @@ from .models import Order, OrderProduct
 from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 
 def banners_list_api(request):
@@ -78,6 +79,8 @@ def register_order(request):
         if request.method == "GET":
             return Response()
         order_data = request.data
+        if not check_valid(order_data):
+            raise ValueError()
         order = Order.objects.create(
             address=order_data["address"],
             firstname=order_data["firstname"],
@@ -99,6 +102,20 @@ def register_order(request):
         return Response(
             {
                 "error": "cannot parse json order",
-            }
+            }, 
+            status=status.HTTP_406_NOT_ACCEPTABLE
         )
 
+def check_valid(data):
+    if len(data.keys()) != 5:
+        return False
+    if type(data["products"]) != list or not data["products"]:
+        return False
+    if any([x.isdigit() for x in data["firstname"]]):
+        return False
+    if any([x.isdigit() for x in data["lastname"]]):
+        return False
+    if len(data["phonenumber"]) < 4:
+        return False
+    if len(data["address"]) < 10:
+        return False
