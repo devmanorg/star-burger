@@ -5,3 +5,4 @@ node_modules/
 media/
 *.pyc
 package-lock.json
+*.db
