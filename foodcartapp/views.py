@@ -108,25 +108,19 @@ def register_order(request):
 
 def check_valid(data):
 
-    if len(data.keys()) != 5:
-        print("1")
+    if len(data.keys()) != 5:        
         return False
     
-    if type(data["products"]) != list or not data["products"]:
-        print("2")
+    if type(data["products"]) != list or not data["products"]:        
         return False
 
-    if any([x.isdigit() for x in data["firstname"]]):
-        print("3")
+    if not data["firstname"] or any([x.isdigit() for x in data["firstname"]]):        
         return False
-    if any([x.isdigit() for x in data["lastname"]]):
-        print("4")
+    if not data["lastname"] or any([x.isdigit() for x in data["lastname"]]):        
         return False
-    if len(data["phonenumber"]) < 4:
-        print("5")
+    if not data["phonenumber"] or len(data["phonenumber"]) < 4:        
         return False
-    if len(data["address"]) < 5:
-        print("6")
+    if not data["address"] or len(data["address"]) < 5:        
         return False
     return True
     
