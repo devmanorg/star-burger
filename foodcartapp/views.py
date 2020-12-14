@@ -80,7 +80,7 @@ def register_order(request):
             return Response()
         order_data = request.data
         if not check_valid(order_data):
-            raise ValueError()
+            raise ValueError("Some err")
         order = Order.objects.create(
             address=order_data["address"],
             firstname=order_data["firstname"],
@@ -97,8 +97,8 @@ def register_order(request):
             order.ordered_products.add(ordered_product)
         order.save()
 
-        return Response({"id": 1, "message": "Created"})
-    except ValueError:
+        return Response({"id": order.id, "message": "Created"}, status=status.HTTP_201_CREATED)    
+    except ValueError as e:
         return Response(
             {
                 "error": "cannot parse json order",
@@ -107,15 +107,26 @@ def register_order(request):
         )
 
 def check_valid(data):
+
     if len(data.keys()) != 5:
+        print("1")
         return False
+    
     if type(data["products"]) != list or not data["products"]:
+        print("2")
         return False
+
     if any([x.isdigit() for x in data["firstname"]]):
+        print("3")
         return False
     if any([x.isdigit() for x in data["lastname"]]):
+        print("4")
         return False
     if len(data["phonenumber"]) < 4:
+        print("5")
         return False
-    if len(data["address"]) < 10:
+    if len(data["address"]) < 5:
+        print("6")
         return False
+    return True
+    
