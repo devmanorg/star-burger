@@ -13,6 +13,7 @@ from foodcartapp.models import Product, Restaurant
 from rest_framework import viewsets
 from rest_framework import permissions
 
+
 class Login(forms.Form):
     username = forms.CharField(
         label="Логин",
