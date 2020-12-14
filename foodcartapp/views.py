@@ -10,7 +10,53 @@ from .models import Order, OrderProduct
 from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.serializers import (
+    ValidationError,
+    Serializer,
+    CharField,
+    ListField,
+    IntegerField
+)
 from rest_framework import status
+
+class ProductSerailizer(Serializer):
+    product=IntegerField()
+    quantity=IntegerField()
+
+class OrderSerializer(Serializer):
+    products = ListField(child=ProductSerailizer())
+    firstname = CharField()
+    lastname = CharField()
+    phonenumber = CharField()
+    address = CharField()
+
+    def validate_products(self, value):
+        if not value:
+            raise ValidationError("Bad product list")
+        return value
+
+    def validate_firstname(self, value):
+        if any([letter.isdigit() for letter in value]) or len(value) < 3:
+            raise ValidationError("Wrong firstname")
+        return value
+
+    def validate_lastname(self, value):
+        if any([letter.isdigit() for letter in value]) or len(value) < 3:
+            raise ValidationError("Wrong lastname")
+        return value
+
+    def validate_phonenumber(self, value):
+        valid_chars = "0123456789-+()"
+        if len(value) < 4 or any(
+            [char for char in value if char not in valid_chars]
+        ):
+            raise ValidationError("Wrong phonenumber")
+        return value
+
+    def validate_address(self, value):
+        if len(value) < 5:
+            raise ValidationError("Wrong value")
+        return value
 
 
 def banners_list_api(request):
@@ -79,48 +125,33 @@ def register_order(request):
         if request.method == "GET":
             return Response()
         order_data = request.data
-        if not check_valid(order_data):
-            raise ValueError("Some err")
+        serializer = OrderSerializer(data=order_data)
+        serializer.is_valid(raise_exception=True)
+
         order = Order.objects.create(
-            address=order_data["address"],
-            firstname=order_data["firstname"],
-            lastname=order_data["lastname"],
-            phonenumber=order_data["phonenumber"],
+            address=serializer.validated_data["address"],
+            firstname=serializer.validated_data["firstname"],
+            lastname=serializer.validated_data["lastname"],
+            phonenumber=serializer.validated_data["phonenumber"],
         )
 
-        for i in order_data["products"]:
+        for product_info in serializer.validated_data["products"]:
             ordered_product = OrderProduct.objects.create(
-                product=Product.objects.get(id=int(i["product"])),
-                quantity=int(i["quantity"]),
+                product=Product.objects.get(id=int(product_info["product"])),
+                quantity=int(product_info["quantity"]),
                 order=order,
             )
             order.ordered_products.add(ordered_product)
         order.save()
 
-        return Response({"id": order.id, "message": "Created"}, status=status.HTTP_201_CREATED)    
+        return Response(
+            {"id": order.id, "message": "Created"},
+            status=status.HTTP_201_CREATED,
+        )
     except ValueError as e:
         return Response(
             {
                 "error": "cannot parse json order",
-            }, 
-            status=status.HTTP_406_NOT_ACCEPTABLE
+            },
+            status=status.HTTP_406_NOT_ACCEPTABLE,
         )
-
-def check_valid(data):
-
-    if len(data.keys()) != 5:        
-        return False
-    
-    if type(data["products"]) != list or not data["products"]:        
-        return False
-
-    if not data["firstname"] or any([x.isdigit() for x in data["firstname"]]):        
-        return False
-    if not data["lastname"] or any([x.isdigit() for x in data["lastname"]]):        
-        return False
-    if not data["phonenumber"] or len(data["phonenumber"]) < 4:        
-        return False
-    if not data["address"] or len(data["address"]) < 5:        
-        return False
-    return True
-    
