@@ -1,5 +1,5 @@
 import json
-
+import phonenumbers
 from datetime import datetime
 from typing import OrderedDict
 
@@ -10,6 +10,8 @@ from .models import Order, OrderProduct
 from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
 from rest_framework.serializers import (
     ValidationError,
     Serializer,
@@ -18,6 +20,7 @@ from rest_framework.serializers import (
     IntegerField
 )
 from rest_framework import status
+
 
 class ProductSerailizer(Serializer):
     product=IntegerField()
@@ -46,12 +49,13 @@ class OrderSerializer(Serializer):
         return value
 
     def validate_phonenumber(self, value):
+        num = phonenumbers.parse(value, "RU")
         valid_chars = "0123456789-+()"
         if len(value) < 4 or any(
             [char for char in value if char not in valid_chars]
-        ):
+        ) or not phonenumbers.is_valid_number(num):
             raise ValidationError("Wrong phonenumber")
-        return value
+        return phonenumbers.format_number(num, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
     def validate_address(self, value):
         if len(value) < 5:
@@ -144,8 +148,16 @@ def register_order(request):
             order.ordered_products.add(ordered_product)
         order.save()
 
+        content = JSONRenderer().render(serializer.data)
+        response = {
+            "id": order.id,
+            "firstname":serializer.validated_data["firstname"],
+            "lastname":serializer.validated_data["lastname"],
+            "phonenumber":serializer.validated_data["phonenumber"],
+            "address":serializer.validated_data["address"]
+        }
         return Response(
-            {"id": order.id, "message": "Created"},
+            response,
             status=status.HTTP_201_CREATED,
         )
     except ValueError as e:
