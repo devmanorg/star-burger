@@ -147,8 +147,7 @@ def register_order(request):
             )
             order.ordered_products.add(ordered_product)
         order.save()
-
-        content = JSONRenderer().render(serializer.data)
+        
         response = {
             "id": order.id,
             "firstname":serializer.validated_data["firstname"],
