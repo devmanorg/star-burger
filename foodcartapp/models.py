@@ -89,6 +89,7 @@ class OrderProduct(models.Model):
     order = models.ForeignKey(
         "Order", on_delete=models.CASCADE, related_name="products"
     )
+    price = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Заказ №{self.order.id}; {self.product.name}; В количестве {self.quantity}"
