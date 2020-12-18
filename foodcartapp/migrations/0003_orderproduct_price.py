@@ -7,7 +7,7 @@ def set_price_to_ordered_products(apps, schema_editor):
     # version than this migration expects. We use the historical version.
     OrderProduct = apps.get_model('foodcartapp', 'OrderProduct')
     for item in OrderProduct.objects.all():
-        item.name = item.product.price
+        item.price = item.product.price
         item.save()
 
 class Migration(migrations.Migration):
