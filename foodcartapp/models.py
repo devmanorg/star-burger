@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils import timezone
 
 
 class Restaurant(models.Model):
@@ -110,10 +111,12 @@ class Order(models.Model):
     firstname = models.CharField(max_length=100)
     lastname = models.CharField(max_length=100)
     phonenumber = PhoneNumberField(region="RU")
-    address = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
+    address = models.CharField(max_length=255)    
     status = models.CharField(choices=STATUS_CHOICES, default=STATUS_CHOICES[1], max_length=125)
     comment = models.TextField(default="")
+    registered_at = models.DateTimeField(default=timezone.now)
+    called_at = models.DateTimeField(null=True)
+    delivered_at = models.DateTimeField(null=True)
     
 
     def __str__(self):
