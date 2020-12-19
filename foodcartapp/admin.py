@@ -36,8 +36,9 @@ class OrderAdmin(admin.ModelAdmin):
 
     def response_post_save_change(self, request, obj):
         if "next" in request.GET:
-            return HttpResponseRedirect(request.GET['next'].strip())
+            return HttpResponseRedirect(request.GET["next"].strip())
         return HttpResponseRedirect("/")
+
 
 class RestaurantMenuItemInline(admin.TabularInline):
     model = RestaurantMenuItem

@@ -120,16 +120,15 @@ def view_orders(request):
     return render(
         request,
         template_name="order_items.html",
-        context={
-            "orders":orders_list
-        },
+        context={"orders": orders_list},
     )
+
 
 def serialize(order):
     return {
-        "id":order.id,
-        "client":f"{order.firstname} {order.lastname}",
-        "price":order.get_price(),
-        "phonenumber":order.phonenumber.as_international,
-        "address":order.address,
+        "id": order.id,
+        "client": f"{order.firstname} {order.lastname}",
+        "price": order.get_price(),
+        "phonenumber": order.phonenumber.as_international,
+        "address": order.address,
     }

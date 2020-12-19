@@ -17,15 +17,16 @@ from rest_framework.serializers import (
     Serializer,
     CharField,
     ListField,
-    IntegerField
+    IntegerField,
 )
 from rest_framework import status
 from django.db import transaction, IntegrityError
 
 
 class ProductSerailizer(Serializer):
-    product=IntegerField()
-    quantity=IntegerField()
+    product = IntegerField()
+    quantity = IntegerField()
+
 
 class OrderSerializer(Serializer):
     products = ListField(child=ProductSerailizer())
@@ -52,11 +53,15 @@ class OrderSerializer(Serializer):
     def validate_phonenumber(self, value):
         num = phonenumbers.parse(value, "RU")
         valid_chars = "0123456789-+()"
-        if len(value) < 4 or any(
-            [char for char in value if char not in valid_chars]
-        ) or not phonenumbers.is_valid_number(num):
+        if (
+            len(value) < 4
+            or any([char for char in value if char not in valid_chars])
+            or not phonenumbers.is_valid_number(num)
+        ):
             raise ValidationError("Wrong phonenumber")
-        return phonenumbers.format_number(num, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+        return phonenumbers.format_number(
+            num, phonenumbers.PhoneNumberFormat.INTERNATIONAL
+        )
 
     def validate_address(self, value):
         if len(value) < 5:
@@ -147,17 +152,17 @@ def register_order(request):
                     product=product,
                     quantity=int(product_info["quantity"]),
                     order=order,
-                    price = product.price * int(product_info["quantity"])
+                    price=product.price * int(product_info["quantity"]),
                 )
                 order.ordered_products.add(ordered_product)
             order.save()
-            
+
             response = {
                 "id": order.id,
-                "firstname":serializer.validated_data["firstname"],
-                "lastname":serializer.validated_data["lastname"],
-                "phonenumber":serializer.validated_data["phonenumber"],
-                "address":serializer.validated_data["address"]
+                "firstname": serializer.validated_data["firstname"],
+                "lastname": serializer.validated_data["lastname"],
+                "phonenumber": serializer.validated_data["phonenumber"],
+                "address": serializer.validated_data["address"],
             }
             return Response(
                 response,
@@ -166,10 +171,7 @@ def register_order(request):
     except ValueError as e:
         print(e)
         return Response(
-            {
-                "error": "cannot parse json order",
-                "message":e
-            },
+            {"error": "cannot parse json order", "message": e},
             status=status.HTTP_406_NOT_ACCEPTABLE,
         )
     except IntegrityError:
