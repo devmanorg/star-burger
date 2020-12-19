@@ -20,6 +20,7 @@ from rest_framework.serializers import (
     IntegerField
 )
 from rest_framework import status
+from django.db import transaction, IntegrityError
 
 
 class ProductSerailizer(Serializer):
@@ -132,37 +133,49 @@ def register_order(request):
         serializer = OrderSerializer(data=order_data)
         serializer.is_valid(raise_exception=True)
 
-        order = Order.objects.create(
-            address=serializer.validated_data["address"],
-            firstname=serializer.validated_data["firstname"],
-            lastname=serializer.validated_data["lastname"],
-            phonenumber=serializer.validated_data["phonenumber"],
-        )
-
-        for product_info in serializer.validated_data["products"]:
-            ordered_product = OrderProduct.objects.create(
-                product=Product.objects.get(id=int(product_info["product"])),
-                quantity=int(product_info["quantity"]),
-                order=order,
+        with transaction.atomic():
+            order = Order.objects.create(
+                address=serializer.validated_data["address"],
+                firstname=serializer.validated_data["firstname"],
+                lastname=serializer.validated_data["lastname"],
+                phonenumber=serializer.validated_data["phonenumber"],
             )
-            order.ordered_products.add(ordered_product)
-        order.save()
-        
-        response = {
-            "id": order.id,
-            "firstname":serializer.validated_data["firstname"],
-            "lastname":serializer.validated_data["lastname"],
-            "phonenumber":serializer.validated_data["phonenumber"],
-            "address":serializer.validated_data["address"]
-        }
-        return Response(
-            response,
-            status=status.HTTP_201_CREATED,
-        )
+
+            for product_info in serializer.validated_data["products"]:
+                product = Product.objects.get(id=int(product_info["product"]))
+                ordered_product = OrderProduct.objects.create(
+                    product=product,
+                    quantity=int(product_info["quantity"]),
+                    order=order,
+                    price = product.price * int(product_info["quantity"])
+                )
+                order.ordered_products.add(ordered_product)
+            order.save()
+            
+            response = {
+                "id": order.id,
+                "firstname":serializer.validated_data["firstname"],
+                "lastname":serializer.validated_data["lastname"],
+                "phonenumber":serializer.validated_data["phonenumber"],
+                "address":serializer.validated_data["address"]
+            }
+            return Response(
+                response,
+                status=status.HTTP_201_CREATED,
+            )
     except ValueError as e:
+        print(e)
         return Response(
             {
                 "error": "cannot parse json order",
+                "message":e
             },
             status=status.HTTP_406_NOT_ACCEPTABLE,
+        )
+    except IntegrityError:
+        return Response(
+            {
+                "error": "db transaction error",
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
