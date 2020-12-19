@@ -18,6 +18,7 @@
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
+      <th>Ссылка на редактирование</th>
     </tr>
 
     {% for order in orders %}
@@ -27,6 +28,9 @@
         <td>{{order.client}}</td>
         <td>{{order.phonenumber}}</td>
         <td>{{order.address}}</td>
+        <td>
+          <a href="{% url 'admin:foodcartapp_order_change' order.id %}?next= {{ request.get_full_path|urlencode }}">Редактировать</a>          
+        </td>
       </tr>
     {% endfor %}
    </table>
