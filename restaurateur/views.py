@@ -131,5 +131,6 @@ def serialize(order):
         "price": order.get_price(),
         "phonenumber": order.phonenumber.as_international,
         "address": order.address,
-        "status":order.get_status_display()
+        "status":order.get_status_display(),
+        "comment":order.comment,
     }
