@@ -105,6 +105,10 @@ class Order(models.Model):
         ("Handled", "Обработано"),
         ("Unhandled", "Необработано")
     )
+    PAYMENT_CHOICES = (
+        ("CASH", "Наличными"),
+        ("CARD", "Электронно")
+    )
     ordered_products = models.ManyToManyField(
         "OrderProduct", related_name="source"
     )
@@ -113,10 +117,12 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(region="RU")
     address = models.CharField(max_length=255)    
     status = models.CharField(choices=STATUS_CHOICES, default="Unhandled", max_length=125)
-    comment = models.TextField(default="")
+    comment = models.TextField(default="", blank=True)
     registered_at = models.DateTimeField(default=timezone.now)
-    called_at = models.DateTimeField(null=True)
-    delivered_at = models.DateTimeField(null=True)
+    called_at = models.DateTimeField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    payment = models.CharField(choices=PAYMENT_CHOICES, default="CARD", max_length=125)
+    
     
 
     def __str__(self):
