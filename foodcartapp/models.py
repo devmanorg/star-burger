@@ -113,6 +113,7 @@ class Order(models.Model):
     address = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(choices=STATUS_CHOICES, default=STATUS_CHOICES[1], max_length=125)
+    comment = models.TextField(default="")
     
 
     def __str__(self):
