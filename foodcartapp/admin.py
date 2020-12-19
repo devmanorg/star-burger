@@ -20,11 +20,13 @@ class OrderProductInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    fields = ("firstname",
+    fields = (
+        "firstname",
         "lastname",
         "address",
         "phonenumber",
         "status",
+        "payment",
         "comment",
         "registered_at",
         "delivered_at",
