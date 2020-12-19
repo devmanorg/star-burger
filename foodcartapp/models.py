@@ -112,7 +112,7 @@ class Order(models.Model):
     lastname = models.CharField(max_length=100)
     phonenumber = PhoneNumberField(region="RU")
     address = models.CharField(max_length=255)    
-    status = models.CharField(choices=STATUS_CHOICES, default=STATUS_CHOICES[1], max_length=125)
+    status = models.CharField(choices=STATUS_CHOICES, default="Unhandled", max_length=125)
     comment = models.TextField(default="")
     registered_at = models.DateTimeField(default=timezone.now)
     called_at = models.DateTimeField(null=True)
