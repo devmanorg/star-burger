@@ -100,6 +100,10 @@ class OrderProduct(models.Model):
 
 
 class Order(models.Model):
+    STATUS_CHOICES = (
+        ("Handled", "Обработано"),
+        ("Unhandled", "Необработано")
+    )
     ordered_products = models.ManyToManyField(
         "OrderProduct", related_name="source"
     )
@@ -108,6 +112,8 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(region="RU")
     address = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(choices=STATUS_CHOICES, default=STATUS_CHOICES[1], max_length=125)
+    
 
     def __str__(self):
         return f"{self.firstname} {self.lastname} -> {self.address}"
