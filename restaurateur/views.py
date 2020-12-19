@@ -129,6 +129,7 @@ def serialize(order):
     return {
         "id":order.id,
         "client":f"{order.firstname} {order.lastname}",
+        "price":order.get_price(),
         "phonenumber":order.phonenumber.as_international,
         "address":order.address,
     }
