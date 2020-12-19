@@ -26,6 +26,9 @@ class OrderAdmin(admin.ModelAdmin):
         "phonenumber",
         "status",
         "comment",
+        "registered_at",
+        "delivered_at",
+        "called_at"
     )
     search_fields = [
         "firstname",
@@ -33,6 +36,7 @@ class OrderAdmin(admin.ModelAdmin):
         "address",
         "phonenumber",
     ]
+    readonly_fields = ['registered_at',]
     
     inlines = [OrderProductInline]
 
