@@ -20,18 +20,20 @@ class OrderProductInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    fields = ("firstname",
+        "lastname",
+        "address",
+        "phonenumber",
+        "status",
+        "comment",
+    )
     search_fields = [
         "firstname",
         "lastname",
         "address",
         "phonenumber",
     ]
-    list_display = [
-        "firstname",
-        "lastname",
-        "address",
-        "phonenumber",
-    ]
+    
     inlines = [OrderProductInline]
 
     def response_post_save_change(self, request, obj):
