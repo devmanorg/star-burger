@@ -9,6 +9,10 @@ from django.contrib.auth import views as auth_views
 import requests
 from geopy import distance
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from django.core.cache import cache
+import urllib
+
+from urllib3.util import url
 
 
 class Login(forms.Form):
@@ -115,27 +119,38 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url="restaurateur:login")
 def view_orders(request):
-    orders = Order.objects.all()    
+    orders = Order.objects.all()
     orders_list = [serialize_order(order) for order in orders]
     return render(
         request,
         template_name="order_items.html",
         context={"orders": orders_list},
     )
+
+
 def get_coords(address):
     try:
-        res = requests.get(f"https://nominatim.geocoding.ai/search.php?q={address}&polygon_geojson=1&format=jsonv2")
+        adr_key = urllib.parse.quote(address.strip().lower())
+        if cache.get(adr_key):
+            return cache.get(adr_key)
+        res = requests.get(
+            f"https://nominatim.geocoding.ai/search.php?q={address}&polygon_geojson=1&format=jsonv2"
+        )
         if res.ok:
             json_data = res.json()
-            return float(json_data[0]["lat"]), float(json_data[0]["lon"])
+            lat, lon = float(json_data[0]["lat"]), float(json_data[0]["lon"])
+            cache.set(adr_key, [lat, lon], 3600)
+            return lat, lon
     except:
         return None
+
 
 def get_distance(coord1, coord2):
     try:
         return distance.distance(coord1, coord2).km
     except:
         return None
+
 
 def serialize_order(order):
     order_coords = get_coords(order.address)
@@ -148,12 +163,11 @@ def serialize_order(order):
         for x in item_list:
             coords = get_coords(x.restaurant.address)
             dist = get_distance(order_coords, coords)
-            rest_list.append({
-                "name":x.restaurant.name,
-                "distance":round(dist,2)
-            })        
+            rest_list.append(
+                {"name": x.restaurant.name, "distance": round(dist, 2)}
+            )
         rest_lists.append(rest_list)
-    
+
     print(rest_lists)
     return {
         "id": order.id,
@@ -161,9 +175,8 @@ def serialize_order(order):
         "price": order.get_price(),
         "phonenumber": order.phonenumber.as_international,
         "address": order.address,
-        "status":order.get_status_display(),
-        "comment":order.comment,
-        "payment":order.get_payment_display(),
-        "available_in":rest_lists
+        "status": order.get_status_display(),
+        "comment": order.comment,
+        "payment": order.get_payment_display(),
+        "available_in": rest_lists,
     }
-
