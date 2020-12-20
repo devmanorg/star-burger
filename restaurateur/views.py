@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-
-
+import requests
+from geopy import distance
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 
 
@@ -115,23 +115,45 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url="restaurateur:login")
 def view_orders(request):
-    orders = Order.objects.all()
+    orders = Order.objects.all()    
     orders_list = [serialize_order(order) for order in orders]
     return render(
         request,
         template_name="order_items.html",
         context={"orders": orders_list},
     )
+def get_coords(address):
+    try:
+        res = requests.get(f"https://nominatim.geocoding.ai/search.php?q={address}&polygon_geojson=1&format=jsonv2")
+        if res.ok:
+            json_data = res.json()
+            return float(json_data[0]["lat"]), float(json_data[0]["lon"])
+    except:
+        return None
 
+def get_distance(coord1, coord2):
+    try:
+        return distance.distance(coord1, coord2).km
+    except:
+        return None
 
 def serialize_order(order):
+    order_coords = get_coords(order.address)
     prods = [x.product for x in order.ordered_products.all()]
-
     items_lists = [RestaurantMenuItem.objects.filter(product=x) for x in prods]
     rest_lists = []
 
-    for item_list in items_lists:                
-        rest_lists.append([x.restaurant.name for x in item_list])
+    for item_list in items_lists:
+        rest_list = []
+        for x in item_list:
+            coords = get_coords(x.restaurant.address)
+            dist = get_distance(order_coords, coords)
+            rest_list.append({
+                "name":x.restaurant.name,
+                "distance":round(dist,2)
+            })        
+        rest_lists.append(rest_list)
+    
     print(rest_lists)
     return {
         "id": order.id,
@@ -144,3 +166,4 @@ def serialize_order(order):
         "payment":order.get_payment_display(),
         "available_in":rest_lists
     }
+

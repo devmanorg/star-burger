@@ -42,7 +42,7 @@
               {% for res in order.available_in %}
                 <li>
                   {% for i in res%}
-                    "{{i}}"
+                    <p>{{i.name}} - {{i.distance}}км</p>                    
                   {% endfor %}    
                 </li>
               {% endfor %}
