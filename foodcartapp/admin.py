@@ -30,7 +30,7 @@ class OrderAdmin(admin.ModelAdmin):
         "comment",
         "registered_at",
         "delivered_at",
-        "called_at"
+        "called_at",
     )
     search_fields = [
         "firstname",
@@ -38,14 +38,16 @@ class OrderAdmin(admin.ModelAdmin):
         "address",
         "phonenumber",
     ]
-    readonly_fields = ['registered_at',]
-    
+    readonly_fields = [
+        "registered_at",
+    ]
+
     inlines = [OrderProductInline]
 
     def response_post_save_change(self, request, obj):
         if "next" in request.GET:
             return HttpResponseRedirect(request.GET["next"].strip())
-        return self._response_post_save(request, obj)        
+        return self._response_post_save(request, obj)
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
