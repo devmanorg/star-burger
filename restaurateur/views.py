@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -116,7 +116,7 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url="restaurateur:login")
 def view_orders(request):
     orders = Order.objects.all()
-    orders_list = [serialize(order) for order in orders]
+    orders_list = [serialize_order(order) for order in orders]
     return render(
         request,
         template_name="order_items.html",
@@ -124,7 +124,15 @@ def view_orders(request):
     )
 
 
-def serialize(order):
+def serialize_order(order):
+    prods = [x.product for x in order.ordered_products.all()]
+
+    items_lists = [RestaurantMenuItem.objects.filter(product=x) for x in prods]
+    rest_lists = []
+
+    for item_list in items_lists:                
+        rest_lists.append([x.restaurant.name for x in item_list])
+    print(rest_lists)
     return {
         "id": order.id,
         "client": f"{order.firstname} {order.lastname}",
@@ -134,4 +142,5 @@ def serialize(order):
         "status":order.get_status_display(),
         "comment":order.comment,
         "payment":order.get_payment_display(),
+        "available_in":rest_lists
     }
