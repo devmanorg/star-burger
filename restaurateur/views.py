@@ -1,18 +1,16 @@
+import urllib
+
+import requests
 from django import forms
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import user_passes_test
+from django.core.cache import cache
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
-from django.contrib.auth.decorators import user_passes_test
-
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import views as auth_views
-import requests
 from geopy import distance
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
-from django.core.cache import cache
-import urllib
-
-from urllib3.util import url
 
 
 class Login(forms.Form):
@@ -24,7 +22,7 @@ class Login(forms.Form):
             attrs={
                 "class": "form-control",
                 "placeholder": "Укажите имя пользователя",
-            }
+            },
         ),
     )
     password = forms.CharField(
@@ -32,7 +30,7 @@ class Login(forms.Form):
         max_length=75,
         required=True,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "Введите пароль"}
+            attrs={"class": "form-control", "placeholder": "Введите пароль"},
         ),
     )
 
@@ -129,26 +127,26 @@ def view_orders(request):
 
 
 def get_coords(address):
+    payload = {"q": address, "polygon_geojson": 1, "format": "jsonv2"}
+    url = "https://nominatim.geocoding.ai/search.php"
     try:
         adr_key = urllib.parse.quote(address.strip().lower())
         if cache.get(adr_key):
             return cache.get(adr_key)
-        res = requests.get(
-            f"https://nominatim.geocoding.ai/search.php?q={address}&polygon_geojson=1&format=jsonv2"
-        )
+        res = requests.get(url, params=payload)
         if res.ok:
             json_data = res.json()
             lat, lon = float(json_data[0]["lat"]), float(json_data[0]["lon"])
             cache.set(adr_key, [lat, lon], 3600)
             return lat, lon
-    except:
+    except Exception:
         return None
 
 
 def get_distance(coord1, coord2):
     try:
         return distance.distance(coord1, coord2).km
-    except:
+    except Exception:
         return None
 
 
@@ -164,7 +162,7 @@ def serialize_order(order):
             coords = get_coords(x.restaurant.address)
             dist = get_distance(order_coords, coords)
             rest_list.append(
-                {"name": x.restaurant.name, "distance": round(dist, 2)}
+                {"name": x.restaurant.name, "distance": round(dist, 2)},
             )
         rest_lists.append(rest_list)
 

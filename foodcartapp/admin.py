@@ -102,7 +102,7 @@ class ProductAdmin(admin.ModelAdmin):
                     "image",
                     "get_image_preview",
                     "price",
-                ]
+                ],
             },
         ),
         (
@@ -128,7 +128,8 @@ class ProductAdmin(admin.ModelAdmin):
         if not obj.image:
             return "выберите картинку"
         return format_html(
-            '<img src="{url}" height="200"/>', url=obj.image.url
+            '<img src="{url}" height="200"/>',
+            url=obj.image.url,
         )
 
     get_image_preview.short_description = "превью"

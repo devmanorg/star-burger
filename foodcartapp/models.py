@@ -1,14 +1,15 @@
-from django.contrib.auth.models import User
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
     name = models.CharField("название", max_length=50)
     address = models.CharField("адрес", max_length=100, blank=True)
     contact_phone = models.CharField(
-        "контактный телефон", max_length=50, blank=True
+        "контактный телефон",
+        max_length=50,
+        blank=True,
     )
 
     def __str__(self):
@@ -48,7 +49,9 @@ class Product(models.Model):
     price = models.DecimalField("цена", max_digits=8, decimal_places=2)
     image = models.ImageField("картинка")
     special_status = models.BooleanField(
-        "спец.предложение", default=False, db_index=True
+        "спец.предложение",
+        default=False,
+        db_index=True,
     )
     description = models.TextField("описание", max_length=200, blank=True)
 
@@ -64,13 +67,19 @@ class Product(models.Model):
 
 class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(
-        Restaurant, on_delete=models.CASCADE, related_name="menu_items"
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name="menu_items",
     )
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="menu_items"
+        Product,
+        on_delete=models.CASCADE,
+        related_name="menu_items",
     )
     availability = models.BooleanField(
-        "в продаже", default=True, db_index=True
+        "в продаже",
+        default=True,
+        db_index=True,
     )
 
     def __str__(self):
@@ -84,11 +93,16 @@ class RestaurantMenuItem(models.Model):
 
 class OrderProduct(models.Model):
     product = models.ForeignKey(
-        "Product", on_delete=models.SET_NULL, blank=True, null=True
+        "Product",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
     )
     quantity = models.IntegerField()
     order = models.ForeignKey(
-        "Order", on_delete=models.CASCADE, related_name="products"
+        "Order",
+        on_delete=models.CASCADE,
+        related_name="products",
     )
     price = models.IntegerField(default=0)
 
@@ -104,21 +118,26 @@ class Order(models.Model):
     STATUS_CHOICES = (("Handled", "Обработано"), ("Unhandled", "Необработано"))
     PAYMENT_CHOICES = (("CASH", "Наличными"), ("CARD", "Электронно"))
     ordered_products = models.ManyToManyField(
-        "OrderProduct", related_name="source"
+        "OrderProduct",
+        related_name="source",
     )
     firstname = models.CharField(max_length=100)
     lastname = models.CharField(max_length=100)
     phonenumber = PhoneNumberField(region="RU")
     address = models.CharField(max_length=255)
     status = models.CharField(
-        choices=STATUS_CHOICES, default="Unhandled", max_length=125
+        choices=STATUS_CHOICES,
+        default="Unhandled",
+        max_length=125,
     )
     comment = models.TextField(default="", blank=True)
     registered_at = models.DateTimeField(default=timezone.now)
     called_at = models.DateTimeField(null=True, blank=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
     payment = models.CharField(
-        choices=PAYMENT_CHOICES, default="CARD", max_length=125
+        choices=PAYMENT_CHOICES,
+        default="CARD",
+        max_length=125,
     )
 
     def __str__(self):

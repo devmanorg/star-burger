@@ -1,17 +1,9 @@
-import json
 import phonenumbers
-from datetime import datetime
-from typing import OrderedDict
-
+from django.db import transaction, IntegrityError
 from django.http import JsonResponse
 from django.templatetags.static import static
-
-from .models import Order, OrderProduct
-from .models import Product
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
 from rest_framework.serializers import (
     ValidationError,
     Serializer,
@@ -20,7 +12,9 @@ from rest_framework.serializers import (
     IntegerField,
 )
 from rest_framework import status
-from django.db import transaction, IntegrityError
+
+from .models import Order, OrderProduct
+from .models import Product
 
 
 class ProductSerailizer(Serializer):
@@ -60,7 +54,7 @@ class OrderSerializer(Serializer):
         ):
             raise ValidationError("Wrong phonenumber")
         return phonenumbers.format_number(
-            num, phonenumbers.PhoneNumberFormat.INTERNATIONAL
+            num, phonenumbers.PhoneNumberFormat.INTERNATIONAL,
         )
 
     def validate_address(self, value):
