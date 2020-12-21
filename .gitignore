@@ -6,3 +6,4 @@ media/
 *.pyc
 package-lock.json
 *.db
+.env
