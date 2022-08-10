@@ -1,3 +1,5 @@
+from ast import mod
+from math import prod
 from django.db import models
 from django.core.validators import MinValueValidator
 
@@ -121,3 +123,33 @@ class RestaurantMenuItem(models.Model):
 
     def __str__(self):
         return f"{self.restaurant.name} - {self.product.name}"
+
+
+class Order(models.Model):
+    address = models.CharField(
+        'адрес',
+        max_length=200
+    )
+    first_name = models.CharField(
+        'имя',
+        max_length=50
+    )
+    last_name = models.CharField(
+        'фамилия',
+        max_length=50,
+        blank=True
+    )
+    class Meta:
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+
+        def __str__(self):
+            return self.name
+
+class OrderLine(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='dd',
+        verbose_name='позиция'
+    )
