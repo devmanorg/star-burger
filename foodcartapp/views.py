@@ -1,9 +1,8 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
-import json
-from rest_framework.decorators import api_view, authentication_classes
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
 
 from .models import Order, OrderLine, Product
@@ -73,6 +72,18 @@ def register_order(request):
         phone=phone,
         address=address
     )
+    try:
+        products = data['products']
+    except KeyError:
+        return Response(
+            data={'error': 'Products is not presented in data'},
+            status=status.HTTP_406_NOT_ACCEPTABLE,
+        )
+    if not isinstance(products, list):
+        return Response(
+            data={'error': 'Products is not list'},
+            status=status.HTTP_406_NOT_ACCEPTABLE,
+        )
     for order_line in data['products']:
         OrderLine.objects.create(
             order=new_order,
