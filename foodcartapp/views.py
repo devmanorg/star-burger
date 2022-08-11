@@ -1,6 +1,9 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
 import json
+from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
 
 
 from .models import Order, OrderLine, Product
@@ -57,14 +60,9 @@ def product_list_api(request):
         'indent': 4,
     })
 
-
+@api_view(['POST'])
 def register_order(request):
-    try:
-        data = json.loads(request.body.decode())
-    except ValueError:
-        return JsonResponse({
-            'error': 'bad json',
-        })
+    data = request.data
     first_name = data['firstname']
     last_name = data['lastname']
     phone = data['phonenumber']

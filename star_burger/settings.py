@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'phonenumber_field',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -125,5 +126,4 @@ STATICFILES_DIRS = [
 ]
 
 PHONENUMBER_DB_FORMAT = "INTERNATIONAL"
-#PHONENUMBER_DEFAULT_REGION = 'RU'
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
