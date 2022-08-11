@@ -139,8 +139,8 @@ class Order(models.Model):
     last_name = models.CharField(
         'фамилия',
         max_length=50,
-        blank=True,
         null=False,
+        db_index=True,
     )
     phone = PhoneNumberField()
 
