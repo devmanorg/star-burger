@@ -79,9 +79,19 @@ def register_order(request):
             data={'error': 'Products is not presented in data'},
             status=status.HTTP_406_NOT_ACCEPTABLE,
         )
+    if products is None:
+        return Response(
+            data={'error': 'Products list can not be null'},
+            status=status.HTTP_406_NOT_ACCEPTABLE,
+        )
     if not isinstance(products, list):
         return Response(
             data={'error': 'Products is not list'},
+            status=status.HTTP_406_NOT_ACCEPTABLE,
+        )      
+    if not len(products):
+        return Response(
+            data={'error': 'Products list can not be empty'},
             status=status.HTTP_406_NOT_ACCEPTABLE,
         )
     for order_line in data['products']:
