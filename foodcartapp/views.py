@@ -3,8 +3,7 @@ from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-
-
+import phonenumbers
 from .models import Order, OrderLine, Product
 
 
@@ -61,16 +60,46 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
+    order_keys = ['firstname', 'lastname', 'phonenumber', 'address']
+    valid_keys = {}
     data = request.data
-    first_name = data['firstname']
-    last_name = data['lastname']
-    phone = data['phonenumber']
-    address = data['address']
+    for order_key in order_keys:
+        try:
+            valid_keys[order_key] = data[order_key]
+        except KeyError:
+            return Response(
+                data={'error': f'{order_key} key is not presented in data'},
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )  
+    for order_key in order_keys:
+        if not isinstance(valid_keys[order_key], str):
+            return Response(
+                data={'error': f'{order_key} is not str'},
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
+    for order_key in order_keys:
+        if valid_keys[order_key] is None:
+            return Response(
+                data={'error': f'{order_key} can not be null'},
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
+    try:
+        number = phonenumbers.parse(valid_keys['phonenumber'], "RU")
+    except:
+        return Response(
+                data={'error': 'missing phone number'},
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
+    if not phonenumbers.is_valid_number(number):
+        return Response(
+                data={'error': 'Incorrect phone number'},
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
     new_order = Order.objects.create(
-        first_name=first_name,
-        last_name=last_name,
-        phone=phone,
-        address=address
+        first_name=valid_keys['firstname'],
+        last_name=valid_keys['lastname'],
+        phone=number,
+        address=valid_keys['address']
     )
     try:
         products = data['products']
@@ -95,9 +124,16 @@ def register_order(request):
             status=status.HTTP_406_NOT_ACCEPTABLE,
         )
     for order_line in data['products']:
+        if not Product.objects.filter(id=order_line['product']):
+            return Response(
+                data={'error': f'Products id={order_line["product"]} is not exist'},
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+            )
+    for order_line in data['products']:
         OrderLine.objects.create(
             order=new_order,
             product=Product.objects.get(id=order_line['product']),
             quntity=order_line['quantity']
         )
+
     return JsonResponse({})
