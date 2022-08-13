@@ -71,7 +71,14 @@ class OrderSerializer(ModelSerializer):
     class Meta:
         model = Order
         fields = ['products', 'firstname', 'lastname', 'phonenumber', 'address']
-    
+
+
+class OrderDeserializer(ModelSerializer):
+    products = ProductSerializer(many=True, allow_empty=False, write_only=True)
+    class Meta:
+        model = Order
+        fields = ['id', 'products', 'firstname', 'lastname', 'phonenumber', 'address']
+
 
 @api_view(['POST'])
 def register_order(request):
@@ -89,4 +96,5 @@ def register_order(request):
             product=order_line['product'],
             quantity=order_line['quantity']
         )
-    return JsonResponse({}, safe=False)
+    deserializer = OrderDeserializer(new_order)
+    return Response(deserializer.data)
