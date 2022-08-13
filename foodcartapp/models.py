@@ -131,18 +131,18 @@ class Order(models.Model):
         max_length=200,
         null=False,
     )
-    first_name = models.CharField(
+    firstname = models.CharField(
         'имя',
         max_length=50,
         null=False,
     )
-    last_name = models.CharField(
+    lastname = models.CharField(
         'фамилия',
         max_length=50,
         null=False,
         db_index=True,
     )
-    phone = PhoneNumberField()
+    phonenumber = PhoneNumberField()
 
     class Meta:
         verbose_name = 'заказ'
@@ -164,7 +164,7 @@ class OrderLine(models.Model):
         related_name='lines',
         verbose_name='продукт'
     )
-    quntity = models.PositiveSmallIntegerField(
+    quantity = models.PositiveSmallIntegerField(
         verbose_name='количество'
     )
     class Meta:

@@ -116,9 +116,9 @@ class OrderLineInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
-        'last_name',
-        'first_name',
-        'phone',
+        'lastname',
+        'firstname',
+        'phonenumber',
     ]
     
     inlines = [
