@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Max
 
 
 
@@ -128,16 +128,14 @@ class RestaurantMenuItem(models.Model):
 
 class TotalCost(models.QuerySet):
     def sum(self):
-        return self.values('order_id').\
-            annotate(total=Sum(F('product__price')*F('quantity'))).\
-                values(
-                    'order_id',
-                    'total',
-                    'order__lastname',
-                    'order__firstname',
-                    'order__phonenumber',
-                    'order__address'
-                )
+        return self.values('order_id').annotate(
+            total=Sum(F('product__price')*F('quantity')),
+            lastname=Max(F('order__lastname')),
+            firstname=Max(F('order__firstname')),
+            phonenumber=Max(F('order__phonenumber')),
+            address=Max(F('order__address')),
+            order=Max(F('order'))
+        )
 
 
 class Order(models.Model):

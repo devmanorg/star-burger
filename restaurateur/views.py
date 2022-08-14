@@ -9,7 +9,7 @@ from django.contrib.auth import views as auth_views
 
 
 from foodcartapp.models import Order, OrderLine, Product, Restaurant
-
+from django.db.models import F, Sum, Max
 
 class Login(forms.Form):
     username = forms.CharField(
