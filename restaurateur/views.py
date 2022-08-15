@@ -99,5 +99,5 @@ def view_restaurants(request):
 def view_orders(request):
     order_items = OrderLine.orders.sum()
     return render(request, template_name='order_items.html', context={
-        'order_items': order_items
+        'order_items': order_items,
     })

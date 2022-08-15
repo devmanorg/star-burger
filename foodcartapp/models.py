@@ -129,7 +129,7 @@ class RestaurantMenuItem(models.Model):
 class TotalCost(models.QuerySet):
     def sum(self):
         return self.values('order_id').annotate(
-            total=Sum(F('product__price')*F('quantity')),
+            total=Sum(F('price')*F('quantity')),
             lastname=Max(F('order__lastname')),
             firstname=Max(F('order__firstname')),
             phonenumber=Max(F('order__phonenumber')),
