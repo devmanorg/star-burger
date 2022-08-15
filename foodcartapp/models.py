@@ -180,7 +180,13 @@ class OrderLine(models.Model):
     quantity = models.PositiveSmallIntegerField(
         verbose_name='количество'
     )
-
+    price = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        verbose_name='Цена',
+        default=0,
+        validators=[MinValueValidator(0)],
+    )
     orders = TotalCost.as_manager()
     objects = models.Manager()
 
@@ -190,4 +196,3 @@ class OrderLine(models.Model):
 
         def __str__(self):
             return self.name
-

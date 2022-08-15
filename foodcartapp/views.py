@@ -94,7 +94,8 @@ def register_order(request):
         OrderLine.objects.create(
             order=new_order,
             product=order_line['product'],
-            quantity=order_line['quantity']
+            quantity=order_line['quantity'],
+            price=order_line['product'].price,
         )
     deserializer = OrderDeserializer(new_order)
     return Response(deserializer.data)
