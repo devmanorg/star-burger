@@ -2,10 +2,9 @@ from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
-import phonenumbers
 from .models import Order, OrderLine, Product
 from rest_framework.serializers import ModelSerializer
+from django.db import transaction
 
 
 def banners_list_api(request):
@@ -81,6 +80,7 @@ class OrderDeserializer(ModelSerializer):
 
 
 @api_view(['POST'])
+@transaction.atomic
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
