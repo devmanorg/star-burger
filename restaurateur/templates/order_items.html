@@ -1,4 +1,5 @@
 {% extends 'base_restaurateur_page.html' %}
+{% load filter_status %}
 
 {% block title %}Необработанные заказы | Star Burger{% endblock %}
 
@@ -14,6 +15,7 @@
    <table class="table table-responsive">
     <tr>
       <th>ID заказа</th>
+      <th>Статус заказа</th>
       <th>Стоимость заказа</th>
       <th>Клиент</th>
       <th>Телефон</th>
@@ -24,6 +26,7 @@
     {% for item in order_items %}
       <tr>
         <td>{{ item.order }}</td>
+        <td>{{ item.status|display_status }}</td>
         <td>{{ item.total }} руб.</td>
         <td>{{ item.lastname }} {{ item.firstname }}</td>
         <td>{{ item.phonenumber }}</td>

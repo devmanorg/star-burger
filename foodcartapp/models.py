@@ -127,18 +127,31 @@ class RestaurantMenuItem(models.Model):
 
 
 class TotalCost(models.QuerySet):
-    def sum(self):
-        return self.values('order_id').annotate(
+    def list_total_price(self, exclude_status='CT'):
+        return self.exclude(order__status=exclude_status).values('order_id').annotate(
             total=Sum(F('price')*F('quantity')),
             lastname=Max(F('order__lastname')),
             firstname=Max(F('order__firstname')),
             phonenumber=Max(F('order__phonenumber')),
+            status=Max(F('order__status')),
             address=Max(F('order__address')),
             order=Max(F('order'))
         )
 
 
 class Order(models.Model):
+    ORDER_STATUS = [
+        ('CR', 'Создан'),
+        ('PC', 'Сборка'),
+        ('SH', 'Доставка'),
+        ('CT', 'Выполнен'),
+    ]
+    status = models.CharField(
+        max_length=2,
+        choices=ORDER_STATUS,
+        default='CR',
+        db_index=True,
+    )
     address = models.CharField(
         'адрес',
         max_length=200,
@@ -165,12 +178,15 @@ class Order(models.Model):
             return self.name
 
 class OrderLine(models.Model):
+
+
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
         related_name='lines',
         verbose_name='номер заказа'
     )
+
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
