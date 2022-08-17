@@ -162,6 +162,11 @@ class Order(models.Model):
         db_index=True,
     )
     phonenumber = PhoneNumberField()
+    comment = models.TextField(
+        blank=True,
+        max_length=200,
+        verbose_name='комментарий'
+    )
 
     price = TotalCost.as_manager()
     objects = models.Manager()
