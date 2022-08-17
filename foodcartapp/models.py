@@ -4,7 +4,6 @@ from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import F, Sum
 
-
 class Restaurant(models.Model):
     name = models.CharField(
         'название',

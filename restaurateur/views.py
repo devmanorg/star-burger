@@ -8,8 +8,9 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Order, OrderLine, Product, Restaurant
-from django.db.models import F, Sum, Max
+from foodcartapp.models import Order, OrderLine, Product, Restaurant, RestaurantMenuItem
+import numpy as np
+
 
 class Login(forms.Form):
     username = forms.CharField(
@@ -97,6 +98,19 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    max_id_restaurant = Restaurant.objects.all().order_by('id').last().id
+    max_id_product = Product.objects.all().order_by('id').last().id
+    interaction_matrix = np.zeros((max_id_restaurant, max_id_product))
+    products = RestaurantMenuItem.objects.all()
+    for product in products:
+        if product.availability:
+            interaction_matrix[product.restaurant.id-1][product.product.id-1] = 1
+    current_orders = Order.objects.exclude(status='CT').all()
+    for order in current_orders:
+        order.
+    print(interaction_matrix)
     return render(request, template_name='order_items.html', context={
         'order_items': Order.price.total('CT'),
     })
+
+
