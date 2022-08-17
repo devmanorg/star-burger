@@ -146,6 +146,16 @@ class Order(models.Model):
         default='CR',
         db_index=True,
     )
+    payment_type = models.CharField(
+        max_length=4,
+        choices=[
+            ('CASH', 'наличные'),
+            ('CARD', 'электронно'),
+        ],
+        default='CASH',
+        verbose_name='способ оплаты',
+        db_index=True,
+    )
     address = models.CharField(
         'адрес',
         max_length=200,
