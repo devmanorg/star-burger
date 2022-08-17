@@ -97,7 +97,6 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = OrderLine.orders.list_total_price('CT')
     return render(request, template_name='order_items.html', context={
-        'order_items': order_items,
+        'order_items': Order.price.total('CT'),
     })

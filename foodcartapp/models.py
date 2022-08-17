@@ -1,8 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db.models import F, Sum, Max
-
+from django.db.models import F, Sum
 
 
 class Restaurant(models.Model):
@@ -127,15 +126,9 @@ class RestaurantMenuItem(models.Model):
 
 
 class TotalCost(models.QuerySet):
-    def list_total_price(self, exclude_status='CT'):
-        return self.exclude(order__status=exclude_status).values('order_id').annotate(
-            total=Sum(F('price')*F('quantity')),
-            lastname=Max(F('order__lastname')),
-            firstname=Max(F('order__firstname')),
-            phonenumber=Max(F('order__phonenumber')),
-            status=Max(F('order__status')),
-            address=Max(F('order__address')),
-            order=Max(F('order'))
+    def total(self, exclude_status='CT'):
+        return self.exclude(status=exclude_status).annotate(
+            total=Sum(F('lines__price')*F('lines__quantity')),
         )
 
 
@@ -170,6 +163,9 @@ class Order(models.Model):
     )
     phonenumber = PhoneNumberField()
 
+    price = TotalCost.as_manager()
+    objects = models.Manager()
+
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
@@ -203,8 +199,6 @@ class OrderLine(models.Model):
         default=0,
         validators=[MinValueValidator(0)],
     )
-    orders = TotalCost.as_manager()
-    objects = models.Manager()
 
     class Meta:
         verbose_name = 'Позиция заказа'
