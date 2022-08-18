@@ -13,28 +13,20 @@
   <div class="container">
    <table class="table table-responsive">
     <tr>
-      <th>ID заказа</th>
-      <th>Статус заказа</th>
-      <th>Способ оплаты</th>
-      <th>Стоимость заказа</th>
-      <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
       <th>Комментарий</th>
+      <th>рестораны</th>
       <th>Ссылка на админку</th>
     </tr>
 
-    {% for item in order_items %}
+    {% for item in new %}
       <tr>
-        <td>{{ item.id }}</td>
-        <td>{{ item.get_status_display }}</td>
-        <td>{{ item.get_payment_type_display }}</td>
-        <td>{{ item.total }} руб.</td>
-        <td>{{ item.lastname }} {{ item.firstname }}</td>
-        <td>{{ item.phonenumber }}</td>
-        <td>{{ item.address }}</td>
-        <td>{{ item.comment }}</td>
-        <td><a href="{% url 'admin:foodcartapp_order_change' item.id %}?from_orders">редактировать</a></td>
+        <td>{{ item.0.phonenumber }}</td>
+        <td>{{ item.0.address }}</td>
+        <td>{{ item.0.comment }}</td>
+        <td>{% for item in item.1 %}{{ item }}{% endfor %}</td>
+        <td><a href="{% url 'admin:foodcartapp_order_change' 1 %}?from_orders">редактировать</a></td>
       </tr>
     {% endfor %}
    </table>

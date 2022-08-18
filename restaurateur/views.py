@@ -98,7 +98,8 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    max_id_restaurant = Restaurant.objects.all().order_by('id').last().id
+    restaurants = Restaurant.objects.all()
+    max_id_restaurant = restaurants.order_by('id').last().id
     max_id_product = Product.objects.all().order_by('id').last().id
     interaction_matrix = np.zeros((max_id_restaurant, max_id_product), dtype=int)
     products = RestaurantMenuItem.objects.select_related('product', 'restaurant').all()
@@ -106,16 +107,18 @@ def view_orders(request):
         if product.availability:
             interaction_matrix[product.restaurant.id-1][product.product.id-1] = 1
     current_orders = Order.objects.exclude(status='CT').prefetch_related('lines').all()
+    context = []
     for order in current_orders:
         lines = order.lines.all()
-        products_number = len(lines)
+        products_number = lines.count()
         order_matrix = np.zeros((max_id_product, max_id_product), dtype=int)
         for line in lines:
-            order_matrix[line.product.id-1][line.product.id-1] = 1
+            order_matrix[line.product_id-1][line.product_id-1] = 1
         print(f'{order.id = } {products_number = }')
-        q = np.sum(np.dot(interaction_matrix, order_matrix), axis=1)
-        print(np.where(q==products_number)[0]+1,'\n')
-    print(interaction_matrix)
+        restaurants_candidate = np.where(np.sum(np.dot(interaction_matrix, order_matrix), axis=1)==products_number)[0]+1
+        restaurants_candidate = Restaurant.objects.filter(id__in=restaurants_candidate)
+        context.append((order, restaurants_candidate))
     return render(request, template_name='order_items.html', context={
         'order_items': Order.price.total('CT'),
+        'new': context,
     })
