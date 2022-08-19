@@ -16,7 +16,7 @@
       <th>Телефон</th>
       <th>Адрес доставки</th>
       <th>Комментарий</th>
-      <th>рестораны</th>
+      <th>Рестораны</th>
       <th>Ссылка на админку</th>
     </tr>
 
@@ -26,16 +26,22 @@
         <td>{{ item.0.address }}</td>
         <td>{{ item.0.comment }}</td>
         <td>
-          {% if item.0.status == 'CR' %}
+          {% if item.0.status_int == 1 %}
             Может быть приготовлен ресторанами:
+            <ul>
+            {% for restaurant in item.1 %}
+              <li>{{ restaurant }}</li>
+            {% endfor %}
           {% endif %}
-          <ul>
-          {% for restaurant in item.1 %}
-            <li>{{ restaurant }}</li>
-          {% endfor %}
+          {% if item.0.status_int == 2 %}
+              Заказ готовится в {{ item.0.cook_by }}
+          {% endif %}
+          {% if item.0.status_int == 3 %}
+              Заказ передан в доставку
+          {% endif %}
           </ul>
          </td>
-        <td><a href="{% url 'admin:foodcartapp_order_change' item.0.id %}?from_orders={{ item.2 }}">редактировать</a></td>
+        <td><a href="{% url 'admin:foodcartapp_order_change' item.0.id %}?{% for restaurant in item.1 %}ids={{ restaurant.id | urlencode }}&{% endfor %}")>редактировать</a></td>
       </tr>
     {% endfor %}
    </table>

@@ -139,21 +139,9 @@ class Order(models.Model):
         (3, 'Доставка'),
         (4, 'Выполнен'),
     ]
-    ORDER_STATUS = [
-        ('CR', 'Создан'),
-        ('PC', 'Сборка'),
-        ('SH', 'Доставка'),
-        ('CT', 'Выполнен'),
-    ]
     status_int = models.PositiveSmallIntegerField(
         choices=ORDER_STATUS_INT,
         default=1,
-        db_index=True,
-    )
-    status = models.CharField(
-        max_length=2,
-        choices=ORDER_STATUS,
-        default='CR',
         db_index=True,
     )
     cook_by = models.ForeignKey(

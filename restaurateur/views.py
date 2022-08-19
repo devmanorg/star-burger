@@ -106,7 +106,8 @@ def view_orders(request):
     for product in products:
         if product.availability:
             interaction_matrix[product.restaurant.id-1][product.product.id-1] = 1
-    current_orders = Order.objects.exclude(status='CT').prefetch_related('lines').all()
+    current_orders = Order.objects.exclude(status_int=4). \
+        order_by('status_int').prefetch_related('lines').all()
     context = []
     for order in current_orders:
         lines = order.lines.all()
@@ -114,12 +115,10 @@ def view_orders(request):
         order_matrix = np.zeros((max_id_product, max_id_product), dtype=int)
         for line in lines:
             order_matrix[line.product_id-1][line.product_id-1] = 1
-        print(f'{order.id = } {products_number = }')
-        restaurants_candidate_ids = (np.where(np.sum(np.dot(interaction_matrix, order_matrix), axis=1)==products_number)[0]+1).tolist()
-        restaurants_candidate = Restaurant.objects.filter(id__in=restaurants_candidate_ids)
-        q1 = ','.join(list(map(str, restaurants_candidate_ids)))
-        context.append((order, restaurants_candidate, q1))
+        restaurants_candidate_id = (np.where(np.sum(np.dot(interaction_matrix, order_matrix),
+                                                        axis=1)==products_number)[0]+1).tolist()
+        restaurants_candidate = Restaurant.objects.filter(id__in=restaurants_candidate_id)
+        context.append((order, restaurants_candidate))
     return render(request, template_name='order_items.html', context={
-        'order_items': Order.price.total('CT'),
         'new': context,
     })

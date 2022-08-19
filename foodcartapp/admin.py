@@ -117,7 +117,7 @@ class OrderLineInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         'id',
-        'status',
+        'status_int',
         'lastname',
         'firstname',
         'phonenumber',
@@ -128,14 +128,17 @@ class OrderAdmin(admin.ModelAdmin):
     ]
     def response_post_save_change(self, request, obj):
         resp = super().response_post_save_change(request, obj)
-        if "from_orders" in request.GET:
+        if "ids" in request.GET:
             return redirect('restaurateur:view_orders')
         else:
             return resp
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "cook_by":
-            print(f'{self = }')
-            print(f'{request = }')
-            kwargs["queryset"] = Restaurant.objects.filter(id=1)
+        if (db_field.name == "cook_by") & ('ids' in request.GET):
+            try:
+                print(request.GET.getlist('ids'))
+                sub = [int(x) for x in request.GET.getlist('ids')]
+                kwargs["queryset"] = Restaurant.objects.filter(id__in=sub)
+            except ValueError as _:
+                pass
         return super(OrderAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
