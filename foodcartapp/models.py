@@ -133,17 +133,34 @@ class TotalCost(models.QuerySet):
 
 
 class Order(models.Model):
+    ORDER_STATUS_INT = [
+        (1, 'Создан'),
+        (2, 'Сборка'),
+        (3, 'Доставка'),
+        (4, 'Выполнен'),
+    ]
     ORDER_STATUS = [
         ('CR', 'Создан'),
         ('PC', 'Сборка'),
         ('SH', 'Доставка'),
         ('CT', 'Выполнен'),
     ]
+    status_int = models.PositiveSmallIntegerField(
+        choices=ORDER_STATUS_INT,
+        default=1,
+        db_index=True,
+    )
     status = models.CharField(
         max_length=2,
         choices=ORDER_STATUS,
         default='CR',
         db_index=True,
+    )
+    cook_by = models.ForeignKey(
+        Restaurant,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
     )
     payment_type = models.CharField(
         max_length=4,

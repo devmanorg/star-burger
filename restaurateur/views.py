@@ -115,9 +115,10 @@ def view_orders(request):
         for line in lines:
             order_matrix[line.product_id-1][line.product_id-1] = 1
         print(f'{order.id = } {products_number = }')
-        restaurants_candidate = np.where(np.sum(np.dot(interaction_matrix, order_matrix), axis=1)==products_number)[0]+1
-        restaurants_candidate = Restaurant.objects.filter(id__in=restaurants_candidate)
-        context.append((order, restaurants_candidate))
+        restaurants_candidate_ids = (np.where(np.sum(np.dot(interaction_matrix, order_matrix), axis=1)==products_number)[0]+1).tolist()
+        restaurants_candidate = Restaurant.objects.filter(id__in=restaurants_candidate_ids)
+        q1 = ','.join(list(map(str, restaurants_candidate_ids)))
+        context.append((order, restaurants_candidate, q1))
     return render(request, template_name='order_items.html', context={
         'order_items': Order.price.total('CT'),
         'new': context,

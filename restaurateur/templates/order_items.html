@@ -25,8 +25,17 @@
         <td>{{ item.0.phonenumber }}</td>
         <td>{{ item.0.address }}</td>
         <td>{{ item.0.comment }}</td>
-        <td>{% for item in item.1 %}{{ item }}{% endfor %}</td>
-        <td><a href="{% url 'admin:foodcartapp_order_change' 1 %}?from_orders">редактировать</a></td>
+        <td>
+          {% if item.0.status == 'CR' %}
+            Может быть приготовлен ресторанами:
+          {% endif %}
+          <ul>
+          {% for restaurant in item.1 %}
+            <li>{{ restaurant }}</li>
+          {% endfor %}
+          </ul>
+         </td>
+        <td><a href="{% url 'admin:foodcartapp_order_change' item.0.id %}?from_orders={{ item.2 }}">редактировать</a></td>
       </tr>
     {% endfor %}
    </table>

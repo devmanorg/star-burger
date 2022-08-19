@@ -132,3 +132,10 @@ class OrderAdmin(admin.ModelAdmin):
             return redirect('restaurateur:view_orders')
         else:
             return resp
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "cook_by":
+            print(f'{self = }')
+            print(f'{request = }')
+            kwargs["queryset"] = Restaurant.objects.filter(id=1)
+        return super(OrderAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
