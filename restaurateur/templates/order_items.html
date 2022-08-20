@@ -20,28 +20,28 @@
       <th>Ссылка на админку</th>
     </tr>
 
-    {% for item in new %}
+    {% for pair in pairs %}
       <tr>
-        <td>{{ item.0.phonenumber }}</td>
-        <td>{{ item.0.address }}</td>
-        <td>{{ item.0.comment }}</td>
+        <td>{{ pair.0.phonenumber }}</td>
+        <td>{{ pair.0.address }}</td>
+        <td>{{ pair.0.comment }}</td>
         <td>
-          {% if item.0.status_int == 1 %}
+          {% if pair.0.status_int == 1 %}
             Может быть приготовлен ресторанами:
             <ul>
-            {% for restaurant in item.1 %}
+            {% for restaurant in pair.1 %}
               <li>{{ restaurant }}</li>
             {% endfor %}
           {% endif %}
-          {% if item.0.status_int == 2 %}
-              Заказ готовится в {{ item.0.cook_by }}
+          {% if pair.0.status_int == 2 %}
+              Заказ готовится в {{ pair.0.cook_by }}
           {% endif %}
-          {% if item.0.status_int == 3 %}
+          {% if pair.0.status_int == 3 %}
               Заказ передан в доставку
           {% endif %}
           </ul>
          </td>
-        <td><a href="{% url 'admin:foodcartapp_order_change' item.0.id %}?{% for restaurant in item.1 %}ids={{ restaurant.id | urlencode }}&{% endfor %}")>редактировать</a></td>
+        <td><a href="{% url 'admin:foodcartapp_order_change' pair.0.id %}?{% for restaurant in pair.1 %}ids={{ restaurant.id | urlencode }}&{% endfor %}")>редактировать</a></td>
       </tr>
     {% endfor %}
    </table>

@@ -1,3 +1,4 @@
+from tabnanny import verbose
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
@@ -140,6 +141,7 @@ class Order(models.Model):
         (4, 'Выполнен'),
     ]
     status_int = models.PositiveSmallIntegerField(
+        verbose_name='Статус заказа',
         choices=ORDER_STATUS_INT,
         default=1,
         db_index=True,
@@ -148,7 +150,8 @@ class Order(models.Model):
         Restaurant,
         on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
+        verbose_name='Исполнитель',
     )
     payment_type = models.CharField(
         max_length=4,
@@ -176,15 +179,29 @@ class Order(models.Model):
         null=False,
         db_index=True,
     )
-    phonenumber = PhoneNumberField()
+    phonenumber = PhoneNumberField(verbose_name='Телефон')
     comment = models.TextField(
         blank=True,
         max_length=200,
         verbose_name='комментарий'
     )
-    created_at = models.DateTimeField(default=timezone.now, db_index=True)
-    called_at = models.DateTimeField(blank=True, null=True, db_index=True)
-    delivered_at = models.DateTimeField(blank=True, null=True, db_index=True)
+    created_at = models.DateTimeField(
+        verbose_name='Создан',
+        default=timezone.now,
+        db_index=True
+    )
+    called_at = models.DateTimeField(
+        verbose_name='Согласован',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    delivered_at = models.DateTimeField(
+        verbose_name='Доставлен',
+        blank=True,
+        null=True,
+        db_index=True
+    )
 
     price = TotalCost.as_manager()
     objects = models.Manager()
@@ -193,8 +210,8 @@ class Order(models.Model):
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
 
-        def __str__(self):
-            return self.name
+    def __str__(self):
+        return f'Заказ №{self.id}'
 
 class OrderLine(models.Model):
 
@@ -226,6 +243,3 @@ class OrderLine(models.Model):
     class Meta:
         verbose_name = 'Позиция заказа'
         verbose_name_plural = 'Позиции заказа'
-
-        def __str__(self):
-            return self.name
