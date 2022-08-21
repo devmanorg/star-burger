@@ -27,11 +27,14 @@
         <td>{{ pair.0.comment }}</td>
         <td>
           {% if pair.0.status_int == 1 %}
-            Может быть приготовлен ресторанами:
+            <details>
+            <summary>Может быть приготовлен ресторанами:</summary>
             <ul>
             {% for restaurant in pair.1 %}
               <li>{{ restaurant }}</li>
             {% endfor %}
+            </ul>
+            </details>
           {% endif %}
           {% if pair.0.status_int == 2 %}
               Заказ готовится в {{ pair.0.cook_by }}
@@ -39,7 +42,6 @@
           {% if pair.0.status_int == 3 %}
               Заказ передан в доставку
           {% endif %}
-          </ul>
          </td>
         <td><a href="{% url 'admin:foodcartapp_order_change' pair.0.id %}?{% for restaurant in pair.1 %}ids={{ restaurant.id | urlencode }}&{% endfor %}")>редактировать</a></td>
       </tr>
