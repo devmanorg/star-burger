@@ -31,7 +31,7 @@
             <summary>Может быть приготовлен ресторанами:</summary>
             <ul>
             {% for restaurant in pair.1 %}
-              <li>{{ restaurant }}</li>
+              <li>{{ restaurant.0 }} - {{ restaurant.1 }} км.</li>
             {% endfor %}
             </ul>
             </details>
@@ -43,7 +43,7 @@
               Заказ передан в доставку
           {% endif %}
          </td>
-        <td><a href="{% url 'admin:foodcartapp_order_change' pair.0.id %}?{% for restaurant in pair.1 %}ids={{ restaurant.id | urlencode }}&{% endfor %}")>редактировать</a></td>
+        <td><a href="{% url 'admin:foodcartapp_order_change' pair.0.id %}?{% for restaurant in pair.1.0 %}ids={{ restaurant.id | urlencode }}&{% endfor %}")>редактировать</a></td>
       </tr>
     {% endfor %}
    </table>

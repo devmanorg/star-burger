@@ -10,7 +10,31 @@ from django.contrib.auth import views as auth_views
 
 from foodcartapp.models import Order, OrderLine, Product, Restaurant, RestaurantMenuItem
 import numpy as np
+import requests
+from geopy import distance
+from django.conf import settings
 
+
+
+def fetch_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    try:
+        response = requests.get(base_url, params={
+            "geocode": address,
+            "apikey": apikey,
+            "format": "json",
+        })
+        response.raise_for_status()
+    except Exception as _:
+        return None   
+
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+    if not found_places:
+        return None
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lat, lon
 
 class Login(forms.Form):
     username = forms.CharField(
@@ -118,7 +142,26 @@ def view_orders(request):
         restaurants_candidate_id = (np.where(np.sum(np.dot(interaction_matrix, order_matrix),
                                                         axis=1)==products_number)[0]+1).tolist()
         restaurants_candidate = Restaurant.objects.filter(id__in=restaurants_candidate_id)
-        orders_and_candidate_restaurants.append((order, restaurants_candidate))
+        if restaurants_candidate:
+            customer_coordinates = fetch_coordinates(order.address)
+            restaurant_and_distance = []
+            if customer_coordinates:
+                for restaurant in restaurants_candidate:
+                    restaurant_coordinates = fetch_coordinates(restaurant.address)
+                    if restaurant_coordinates:
+                        delivery_distance = round(distance.distance(restaurant_coordinates, customer_coordinates).km, 3)
+                        restaurant_and_distance.append((restaurant, delivery_distance))
+                    else:
+                        restaurant_and_distance.append((restaurant, 'Ошибка определения координат'))
+            else:
+                for restaurant in restaurants_candidate:
+                    restaurant_and_distance.append((restaurant, 'Ошибка определения координат'))
+            orders_and_candidate_restaurants.append(
+                (
+                    order,
+                    sorted(restaurant_and_distance, key=lambda x: x[1])
+                )
+            )
     return render(request, template_name='order_items.html', context={
         'pairs': orders_and_candidate_restaurants,
     })

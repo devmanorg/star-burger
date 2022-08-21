@@ -58,6 +58,10 @@ pip install -r requirements.txt
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 ```
+Определите переменную окружения `API_YANDEX_TOKEN` аналогично `SECRET_KEY`. Токен можно получить в [Кабинете разработчика](https://developer.tech.yandex.ru/services/)
+```sh
+API_YANDEX_TOKEN=c2acd7d1-0cd9-94c8-abfc-44d88f59b182
+```
 
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
 
