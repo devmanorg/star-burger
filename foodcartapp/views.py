@@ -1,11 +1,15 @@
+from datetime import datetime
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+from geocode.models import GeoCache
 from .models import Order, OrderLine, Product
 from rest_framework.serializers import ModelSerializer
 from django.db import transaction
-
+from restaurateur.views import fetch_coordinates
+from django.utils import timezone
 
 def banners_list_api(request):
     # FIXME move data to db?
@@ -80,22 +84,44 @@ class OrderDeserializer(ModelSerializer):
 
 
 @api_view(['POST'])
-@transaction.atomic
 def register_order(request):
-    serializer = OrderSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    new_order = Order.objects.create(
-        firstname=serializer.validated_data['firstname'],
-        lastname=serializer.validated_data['lastname'],
-        phonenumber=serializer.validated_data['phonenumber'],
-        address=serializer.validated_data['address']
-    )
-    for order_line in serializer.validated_data['products']:
-        OrderLine.objects.create(
-            order=new_order,
-            product=order_line['product'],
-            quantity=order_line['quantity'],
-            price=order_line['product'].price,
+    with transaction.atomic():
+        serializer = OrderSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_order = Order.objects.create(
+            firstname=serializer.validated_data['firstname'],
+            lastname=serializer.validated_data['lastname'],
+            phonenumber=serializer.validated_data['phonenumber'],
+            address=serializer.validated_data['address']
         )
-    deserializer = OrderDeserializer(new_order)
+        for order_line in serializer.validated_data['products']:
+            OrderLine.objects.create(
+                order=new_order,
+                product=order_line['product'],
+                quantity=order_line['quantity'],
+                price=order_line['product'].price,
+            )
+        deserializer = OrderDeserializer(new_order)
+    try:
+        geo_point = GeoCache.objects.filter(address=serializer.validated_data['address']).first()
+        if not geo_point:
+            coordinates = fetch_coordinates(serializer.validated_data['address'])
+            if coordinates:
+                GeoCache.objects.create(
+                    address=serializer.validated_data['address'],
+                    lat=coordinates[0],
+                    lon=coordinates[1],
+                )
+        else:
+            if geo_point.timestamp - timezone.now().date() > datetime.timedelta(days=7):
+                coordinates = fetch_coordinates(serializer.validated_data['address'])
+                if coordinates:
+                    GeoCache.objects.create(
+                        address=serializer.validated_data['address'],
+                        lat=coordinates[0],
+                        lon=coordinates[1],
+                    )
+    except Exception as e:
+        print('Fuck!')
+     
     return Response(deserializer.data)

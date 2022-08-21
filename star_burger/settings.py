@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'rest_framework',
     'django_extensions',
+    'geocode',
 ]
 
 MIDDLEWARE = [
