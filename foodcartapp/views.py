@@ -1,15 +1,16 @@
-from datetime import datetime
 from django.http import JsonResponse
 from django.templatetags.static import static
+from django.db import transaction
+
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-from geocode.models import GeoCache
-from .models import Order, OrderLine, Product
 from rest_framework.serializers import ModelSerializer
-from django.db import transaction
+
+from .models import Order, OrderLine, Product
+
 from restaurateur.views import fetch_coordinates
-from django.utils import timezone
+
 
 def banners_list_api(request):
     # FIXME move data to db?
@@ -71,16 +72,20 @@ class ProductSerializer(ModelSerializer):
 
 class OrderSerializer(ModelSerializer):
     products = ProductSerializer(many=True, allow_empty=False)
+
     class Meta:
         model = Order
-        fields = ['products', 'firstname', 'lastname', 'phonenumber', 'address']
+        fields = ['products', 'firstname',
+                  'lastname', 'phonenumber', 'address']
 
 
 class OrderDeserializer(ModelSerializer):
     products = ProductSerializer(many=True, allow_empty=False, write_only=True)
+
     class Meta:
         model = Order
-        fields = ['id', 'products', 'firstname', 'lastname', 'phonenumber', 'address']
+        fields = ['id', 'products', 'firstname',
+                  'lastname', 'phonenumber', 'address']
 
 
 @api_view(['POST'])
@@ -103,5 +108,5 @@ def register_order(request):
             )
         deserializer = OrderDeserializer(new_order)
     fetch_coordinates(address=serializer.validated_data['address'])
-     
+
     return Response(deserializer.data)

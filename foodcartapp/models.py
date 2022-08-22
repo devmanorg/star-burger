@@ -1,9 +1,9 @@
-from tabnanny import verbose
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import F, Sum
+
 
 class Restaurant(models.Model):
     name = models.CharField(
@@ -213,16 +213,14 @@ class Order(models.Model):
     def __str__(self):
         return f'Заказ №{self.id}'
 
+
 class OrderLine(models.Model):
-
-
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
         related_name='lines',
         verbose_name='номер заказа'
     )
-
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,

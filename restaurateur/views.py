@@ -3,25 +3,25 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.utils import timezone
-import datetime
+from django.conf import settings
 
-from foodcartapp.models import Order, OrderLine, Product, Restaurant, RestaurantMenuItem
-from geocode.models import GeoCache
+import datetime
 import numpy as np
 import requests
 from geopy import distance
-from django.conf import settings
 
+from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
+from geocode.models import GeoCache
 
 
 def fetch_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
     geo_point = GeoCache.objects.filter(address=address).first()
     if geo_point:
-        if geo_point.timestamp - timezone.now().date() < datetime.timedelta(days=7):
+        if geo_point.timestamp - timezone.now().date() < \
+                datetime.timedelta(days=7):
             return geo_point.lat, geo_point.lon
     base_url = "https://geocode-maps.yandex.ru/1.x"
     try:
@@ -32,9 +32,10 @@ def fetch_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
         })
         response.raise_for_status()
     except Exception as _:
-        return None   
+        return None
 
-    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+    found_places = response. \
+        json()['response']['GeoObjectCollection']['featureMember']
     if not found_places:
         return None
 
@@ -49,6 +50,7 @@ def fetch_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
     except Exception as _:
         pass
     return lat, lon
+
 
 class Login(forms.Form):
     username = forms.CharField(
@@ -113,9 +115,11 @@ def view_products(request):
 
         availability = {
             **default_availability,
-            **{item.restaurant_id: item.availability for item in product.menu_items.all()},
+            **{item.restaurant_id: item.availability
+                for item in product.menu_items.all()},
         }
-        orderer_availability = [availability[restaurant.id] for restaurant in restaurants]
+        orderer_availability = [availability[restaurant.id]
+                                for restaurant in restaurants]
 
         products_with_restaurants.append(
             (product, orderer_availability)
@@ -142,13 +146,19 @@ def view_orders(request):
         memory_geo_cache[venue.id] = fetch_coordinates(venue.address)
     max_id_restaurant = restaurants.order_by('id').last().id
     max_id_product = Product.objects.all().order_by('id').last().id
-    interaction_matrix = np.zeros((max_id_restaurant, max_id_product), dtype=int)
-    products = RestaurantMenuItem.objects.select_related('product', 'restaurant').all()
+    interaction_matrix = np.zeros((max_id_restaurant, max_id_product),
+                                  dtype=int)
+    products = RestaurantMenuItem.objects.select_related(
+                                                         'product',
+                                                         'restaurant',
+                                                        ).all()
     for product in products:
         if product.availability:
-            interaction_matrix[product.restaurant.id-1][product.product.id-1] = 1
+            interaction_matrix[
+                product.restaurant.id-1][product.product.id-1] = 1
     unclosed_orders = Order.objects.exclude(status_int=4). \
-        order_by('status_int').prefetch_related('lines').select_related('cook_by').all()
+        order_by('status_int').prefetch_related('lines'). \
+        select_related('cook_by').all()
     orders_and_candidate_restaurants = []
     for order in unclosed_orders:
         lines = order.lines.all()
@@ -156,16 +166,17 @@ def view_orders(request):
         order_matrix = np.zeros((max_id_product, max_id_product), dtype=int)
         for line in lines:
             order_matrix[line.product_id-1][line.product_id-1] = 1
-        restaurants_candidate_id = (np.where(np.sum(np.dot(interaction_matrix, order_matrix),
-                                                        axis=1)==products_number)[0]+1).tolist()
+        restaurants_candidate_id = (np.where(np.sum(np.dot(interaction_matrix,
+                                                    order_matrix),
+                                    axis=1) == products_number)[0]+1).tolist()
         restaurants_candidate = []
 
         # Тупой перебор, но снижает количество SQL запросов, по сравнению с:
-        # restaurants_candidate = restaurants.filter(id__in=restaurants_candidate_id)
+        # restaurants_candidate = restaurants.filter(
+        #   id__in=restaurants_candidate_id)
         for venue in restaurants:
             if venue.id in restaurants_candidate_id:
                 restaurants_candidate.append(venue)
-        
         if restaurants_candidate:
             customer_coordinates = fetch_coordinates(order.address)
             restaurant_and_distance = []
@@ -173,13 +184,25 @@ def view_orders(request):
                 for restaurant in restaurants_candidate:
                     restaurant_coordinates = memory_geo_cache[restaurant.id]
                     if restaurant_coordinates:
-                        delivery_distance = round(distance.distance(restaurant_coordinates, customer_coordinates).km, 3)
-                        restaurant_and_distance.append((restaurant, delivery_distance))
+                        delivery_distance = round(
+                            distance.distance(
+                                restaurant_coordinates,
+                                customer_coordinates
+                                ).km,
+                            3,
+                        )
+                        restaurant_and_distance.append(
+                            (restaurant, delivery_distance)
+                        )
                     else:
-                        restaurant_and_distance.append((restaurant, 'Ошибка определения координат'))
+                        restaurant_and_distance.append(
+                            (restaurant, 'Ошибка определения координат')
+                        )
             else:
                 for restaurant in restaurants_candidate:
-                    restaurant_and_distance.append((restaurant, 'Ошибка определения координат'))
+                    restaurant_and_distance.append(
+                        (restaurant, 'Ошибка определения координат')
+                    )
             orders_and_candidate_restaurants.append(
                 (
                     order,
