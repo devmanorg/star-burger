@@ -6,9 +6,11 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-
+from django.utils import timezone
+import datetime
 
 from foodcartapp.models import Order, OrderLine, Product, Restaurant, RestaurantMenuItem
+from geocode.models import GeoCache
 import numpy as np
 import requests
 from geopy import distance
@@ -17,6 +19,10 @@ from django.conf import settings
 
 
 def fetch_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
+    geo_point = GeoCache.objects.filter(address=address).first()
+    if geo_point:
+        if geo_point.timestamp - timezone.now().date() < datetime.timedelta(days=7):
+            return geo_point.lat, geo_point.lon
     base_url = "https://geocode-maps.yandex.ru/1.x"
     try:
         response = requests.get(base_url, params={
@@ -34,6 +40,14 @@ def fetch_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
 
     most_relevant = found_places[0]
     lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    try:
+        GeoCache.objects.create(
+            address=address,
+            lat=lat,
+            lon=lon,
+        )
+    except Exception as _:
+        pass
     return lat, lon
 
 class Login(forms.Form):
@@ -123,6 +137,9 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     restaurants = Restaurant.objects.all()
+    memory_geo_cache = {}
+    for venue in restaurants:
+        memory_geo_cache[venue.id] = fetch_coordinates(venue.address)
     max_id_restaurant = restaurants.order_by('id').last().id
     max_id_product = Product.objects.all().order_by('id').last().id
     interaction_matrix = np.zeros((max_id_restaurant, max_id_product), dtype=int)
@@ -131,7 +148,7 @@ def view_orders(request):
         if product.availability:
             interaction_matrix[product.restaurant.id-1][product.product.id-1] = 1
     unclosed_orders = Order.objects.exclude(status_int=4). \
-        order_by('status_int').prefetch_related('lines').all()
+        order_by('status_int').prefetch_related('lines').select_related('cook_by').all()
     orders_and_candidate_restaurants = []
     for order in unclosed_orders:
         lines = order.lines.all()
@@ -141,13 +158,20 @@ def view_orders(request):
             order_matrix[line.product_id-1][line.product_id-1] = 1
         restaurants_candidate_id = (np.where(np.sum(np.dot(interaction_matrix, order_matrix),
                                                         axis=1)==products_number)[0]+1).tolist()
-        restaurants_candidate = Restaurant.objects.filter(id__in=restaurants_candidate_id)
+        restaurants_candidate = []
+
+        # Тупой перебор, но снижает количество SQL запросов, по сравнению с:
+        # restaurants_candidate = restaurants.filter(id__in=restaurants_candidate_id)
+        for venue in restaurants:
+            if venue.id in restaurants_candidate_id:
+                restaurants_candidate.append(venue)
+        
         if restaurants_candidate:
             customer_coordinates = fetch_coordinates(order.address)
             restaurant_and_distance = []
             if customer_coordinates:
                 for restaurant in restaurants_candidate:
-                    restaurant_coordinates = fetch_coordinates(restaurant.address)
+                    restaurant_coordinates = memory_geo_cache[restaurant.id]
                     if restaurant_coordinates:
                         delivery_distance = round(distance.distance(restaurant_coordinates, customer_coordinates).km, 3)
                         restaurant_and_distance.append((restaurant, delivery_distance))

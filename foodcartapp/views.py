@@ -102,26 +102,6 @@ def register_order(request):
                 price=order_line['product'].price,
             )
         deserializer = OrderDeserializer(new_order)
-    try:
-        geo_point = GeoCache.objects.filter(address=serializer.validated_data['address']).first()
-        if not geo_point:
-            coordinates = fetch_coordinates(serializer.validated_data['address'])
-            if coordinates:
-                GeoCache.objects.create(
-                    address=serializer.validated_data['address'],
-                    lat=coordinates[0],
-                    lon=coordinates[1],
-                )
-        else:
-            if geo_point.timestamp - timezone.now().date() > datetime.timedelta(days=7):
-                coordinates = fetch_coordinates(serializer.validated_data['address'])
-                if coordinates:
-                    GeoCache.objects.create(
-                        address=serializer.validated_data['address'],
-                        lat=coordinates[0],
-                        lon=coordinates[1],
-                    )
-    except Exception as e:
-        print('Fuck!')
+    fetch_coordinates(address=serializer.validated_data['address'])
      
     return Response(deserializer.data)

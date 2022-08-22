@@ -21,3 +21,9 @@ class GeoCache(models.Model):
         verbose_name='обновлено',
         default=timezone.now,
     )
+    class Meta:
+        verbose_name = 'Геопозиция'
+        verbose_name_plural = 'Геопозиции'
+
+    def __str__(self):
+        return self.address
