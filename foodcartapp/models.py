@@ -236,7 +236,6 @@ class OrderLine(models.Model):
         max_digits=8,
         decimal_places=2,
         verbose_name='Цена',
-        default=0,
         validators=[MinValueValidator(0)],
     )
 
