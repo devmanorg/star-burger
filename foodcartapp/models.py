@@ -127,8 +127,8 @@ class RestaurantMenuItem(models.Model):
 
 
 class TotalCost(models.QuerySet):
-    def total(self, exclude_status='CT'):
-        return self.exclude(status=exclude_status).annotate(
+    def get_total_costs(self):
+        return self.annotate(
             total=Sum(F('lines__price')*F('lines__quantity')),
         )
 
