@@ -226,7 +226,7 @@ class OrderLine(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='lines',
+        related_name='order_lines',
         verbose_name='продукт'
     )
     quantity = models.PositiveSmallIntegerField(
