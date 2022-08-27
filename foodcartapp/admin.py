@@ -144,9 +144,8 @@ class OrderAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if (db_field.name == 'cook_by') & ('ids' in request.GET):
             try:
-                sub = [int(x) for x in request.GET.getlist('ids')]
-                kwargs['queryset'] = Restaurant.objects.filter(id__in=sub)
+                kwargs['queryset'] = Restaurant.objects.filter(
+                    id__in=[int(x) for x in request.GET.getlist('ids')])
             except ValueError as _:
                 pass
-        return super(OrderAdmin, self).formfield_for_foreignkey(
-                    db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

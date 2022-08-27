@@ -43,7 +43,7 @@
               Заказ передан в доставку
           {% endif %}
          </td>
-        <td><a href="{% url 'admin:foodcartapp_order_change' pair.0.id %}?{% for restaurant in pair.1.0 %}ids={{ restaurant.id | urlencode }}&{% endfor %}")>редактировать</a></td>
+        <td><a href="{% url 'admin:foodcartapp_order_change' pair.0.id %}?{% for restaurant in pair.1 %}ids={{ restaurant.0.id | urlencode }}&{% endfor %}")>редактировать</a></td>
       </tr>
     {% endfor %}
    </table>
