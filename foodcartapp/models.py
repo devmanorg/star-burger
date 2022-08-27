@@ -182,7 +182,6 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(verbose_name='Телефон')
     comment = models.TextField(
         blank=True,
-        max_length=200,
         verbose_name='комментарий'
     )
     created_at = models.DateTimeField(
