@@ -230,7 +230,8 @@ class OrderLine(models.Model):
         verbose_name='продукт'
     )
     quantity = models.PositiveSmallIntegerField(
-        verbose_name='количество'
+        verbose_name='количество',
+        validators=[MinValueValidator(1)],
     )
     price = models.DecimalField(
         max_digits=8,
