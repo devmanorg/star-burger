@@ -11,11 +11,13 @@ class GeoCache(models.Model):
     lat = models.DecimalField(
         max_digits=10,
         decimal_places=8,
+        null=True,
         verbose_name='широта'
     )
     lon = models.DecimalField(
         max_digits=10,
         decimal_places=8,
+        null=True,
         verbose_name='долгота'
     )
     timestamp = models.DateField(
