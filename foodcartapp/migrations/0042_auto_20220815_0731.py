@@ -5,7 +5,7 @@ from django.db import migrations
 
 def fixprice(apps, schema_editor):
     Product = apps.get_model('foodcartapp', 'Product')
-    products = Product.objects.all()
+    products = Product.objects.all().iterator()
     for product in products:
         product.lines.all().update(price=product.price)
 
