@@ -141,10 +141,15 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     restaurants = Restaurant.objects.all()
-    memory_geo_cache = {}
-    for venue in restaurants:
-        memory_geo_cache[venue.id] = fetch_coordinates(venue.address)
-    max_id_restaurant = restaurants.order_by('id').last().id
+    restaurants_raw = Restaurant.objects.raw('SELECT * FROM foodcartapp_restaurant\
+        LEFT JOIN geocode_geocache on geocode_geocache.address\
+             = foodcartapp_restaurant.address')
+    restaurants_geo_cache = {}
+    max_id_restaurant = 0
+    for venue in restaurants_raw:
+        restaurants_geo_cache[venue.id] = venue.lat, venue.lon
+        if max_id_restaurant < venue.id:
+            max_id_restaurant = venue.id
     max_id_product = Product.objects.all().order_by('id').last().id
     interaction_matrix = np.zeros((max_id_restaurant, max_id_product),
                                   dtype=int)
@@ -159,6 +164,12 @@ def view_orders(request):
     unclosed_orders = Order.objects.exclude(status_int=4). \
         order_by('status_int').prefetch_related('lines'). \
         select_related('cook_by').all()
+    unclosed_orders_and_coordinates = Order.objects.raw('SELECT * FROM foodcartapp_order\
+        LEFT JOIN geocode_geocache on\
+        geocode_geocache.address=foodcartapp_order.address')
+    orders_geo_cache = {}
+    for order in unclosed_orders_and_coordinates:
+        orders_geo_cache[order.id] = order.lat, order.lon
     orders_and_candidate_restaurants = []
     for order in unclosed_orders:
         lines = order.lines.all()
@@ -178,11 +189,11 @@ def view_orders(request):
             if venue.id in restaurants_candidate_id:
                 restaurants_candidate.append(venue)
         if restaurants_candidate:
-            customer_coordinates = fetch_coordinates(order.address)
+            customer_coordinates = orders_geo_cache[order.id]
             restaurant_and_distance = []
             if customer_coordinates:
                 for restaurant in restaurants_candidate:
-                    restaurant_coordinates = memory_geo_cache[restaurant.id]
+                    restaurant_coordinates = restaurants_geo_cache[restaurant.id]
                     if restaurant_coordinates:
                         delivery_distance = round(
                             distance.distance(
