@@ -151,6 +151,7 @@ class Order(models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        related_name='orders',
         verbose_name='Исполнитель',
     )
     payment_type = models.CharField(

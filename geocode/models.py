@@ -8,7 +8,7 @@ import datetime
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from foodcartapp.models import Restaurant
+from foodcartapp.models import Order, Restaurant
 
 
 class GeoCache(models.Model):
@@ -80,6 +80,12 @@ def create_or_update_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
         pass
     return lat, lon
 
+
 @receiver(post_save, sender=Restaurant)
+def _(sender, instance, **kwargs):
+    create_or_update_coordinates(instance.address)
+
+
+@receiver(post_save, sender=Order)
 def _(sender, instance, **kwargs):
     create_or_update_coordinates(instance.address)

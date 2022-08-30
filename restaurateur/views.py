@@ -125,7 +125,8 @@ def view_orders(request):
     unclosed_orders = Order.objects.exclude(status_int=4). \
         order_by('status_int').prefetch_related('lines'). \
         select_related('cook_by').all()
-    unclosed_orders_and_coordinates = Order.objects.raw('SELECT * FROM foodcartapp_order\
+    unclosed_orders_and_coordinates = Order.objects.raw(
+        'SELECT * FROM foodcartapp_order\
         LEFT JOIN geocode_geocache on\
         geocode_geocache.address=foodcartapp_order.address')
     orders_geo_cache = {}
@@ -176,12 +177,15 @@ def view_orders(request):
                                                   restaurant_coordinates,
                                                   customer_coordinates
                                                  ).km
-            restaurant_and_distance.append((restaurant, round(delivery_distance, 3)))
+            restaurant_and_distance.append(
+                (restaurant, round(delivery_distance, 3))
+            )
         orders_and_candidate_restaurants.append(
             (
                 order,
                 sorted(restaurant_and_distance,
-                        key=lambda x: x[1] if isinstance(x[1], float) else 10000)
+                       key=lambda x: x[1]
+                       if isinstance(x[1], float) else 10000)
             )
         )
     return render(request, template_name='order_items.html', context={
