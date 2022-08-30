@@ -111,7 +111,6 @@ def view_orders(request):
         restaurants_geo_cache[venue.id] = venue.lat, venue.lon
         if max_id_restaurant < venue.id:
             max_id_restaurant = venue.id
-    print(restaurants_geo_cache)
     max_id_product = Product.objects.all().order_by('id').last().id
     interaction_matrix = np.zeros((max_id_restaurant, max_id_product),
                                   dtype=int)
