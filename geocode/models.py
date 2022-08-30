@@ -62,6 +62,10 @@ def create_or_update_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
     found_places = response. \
         json()['response']['GeoObjectCollection']['featureMember']
     if not found_places:
+        try:
+            GeoCache.objects.create(address=address)
+        except Exception as _:
+            pass
         return None
 
     most_relevant = found_places[0]

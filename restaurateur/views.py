@@ -184,7 +184,6 @@ def view_orders(request):
                         key=lambda x: x[1] if isinstance(x[1], float) else 10000)
             )
         )
-    print(orders_and_candidate_restaurants)
     return render(request, template_name='order_items.html', context={
         'pairs': orders_and_candidate_restaurants,
     })

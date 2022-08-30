@@ -159,24 +159,20 @@ class Order(models.Model):
             ('CASH', 'наличные'),
             ('CARD', 'электронно'),
         ],
-        default='CASH',
         verbose_name='способ оплаты',
         db_index=True,
     )
     address = models.CharField(
         'адрес',
         max_length=200,
-        null=False,
     )
     firstname = models.CharField(
         'имя',
         max_length=50,
-        null=False,
     )
     lastname = models.CharField(
         'фамилия',
         max_length=50,
-        null=False,
         db_index=True,
     )
     phonenumber = PhoneNumberField(verbose_name='Телефон')
