@@ -9,7 +9,7 @@ from rest_framework.serializers import ModelSerializer
 
 from .models import Order, OrderLine, Product
 
-from restaurateur.views import fetch_coordinates
+from geocode.models import create_or_update_coordinates
 
 
 def banners_list_api(request):
@@ -107,6 +107,6 @@ def register_order(request):
                 price=order_line['product'].price,
             )
         deserializer = OrderDeserializer(new_order)
-    fetch_coordinates(address=serializer.validated_data['address'])
+    create_or_update_coordinates(address=serializer.validated_data['address'])
 
     return Response(deserializer.data)
