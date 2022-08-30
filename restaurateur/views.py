@@ -149,39 +149,42 @@ def view_orders(request):
         for venue in restaurants:
             if venue.id in restaurants_candidate_id:
                 restaurants_candidate.append(venue)
-        if restaurants_candidate:
-            customer_coordinates = orders_geo_cache[order.id]
-            restaurant_and_distance = []
-            if customer_coordinates[0] and customer_coordinates[1]:
-                for restaurant in restaurants_candidate:
-                    restaurant_coordinates = restaurants_geo_cache[restaurant.id]
-                    if restaurant_coordinates[0] and restaurant_coordinates[1]:
-                        delivery_distance = round(
-                            distance.distance(
-                                restaurant_coordinates,
-                                customer_coordinates
-                                ).km,
-                            3,
-                        )
-                        restaurant_and_distance.append(
-                            (restaurant, delivery_distance)
-                        )
-                    else:
-                        restaurant_and_distance.append(
-                            (restaurant, 'Ошибка определения координат')
-                        )
-            else:
-                for restaurant in restaurants_candidate:
-                    restaurant_and_distance.append(
-                        (restaurant, 'Ошибка определения координат')
-                    )
+        if not restaurants_candidate:
             orders_and_candidate_restaurants.append(
-                (
-                    order,
-                    sorted(restaurant_and_distance,
-                           key=lambda x: x[1] if isinstance(x[1], float) else 100000)
-                )
+                (order, [('Нет вариантов', 'Ошибка определения координат')])
             )
+            continue
+        customer_coordinates = orders_geo_cache[order.id]
+        restaurant_and_distance = []
+        if not (customer_coordinates[0] and customer_coordinates[1]):
+            for restaurant in restaurants_candidate:
+                restaurant_and_distance.append(
+                    (restaurant, 'Ошибка определения координат')
+                )
+            orders_and_candidate_restaurants.append(
+                (order, restaurant_and_distance)
+            )
+            continue
+        for restaurant in restaurants_candidate:
+            restaurant_coordinates = restaurants_geo_cache[restaurant.id]
+            if not (restaurant_coordinates[0] and restaurant_coordinates[1]):
+                restaurant_and_distance.append(
+                    (restaurant, 'Ошибка определения координат')
+                )
+                continue
+            delivery_distance = distance.distance(
+                                                  restaurant_coordinates,
+                                                  customer_coordinates
+                                                 ).km
+            restaurant_and_distance.append((restaurant, round(delivery_distance, 3)))
+        orders_and_candidate_restaurants.append(
+            (
+                order,
+                sorted(restaurant_and_distance,
+                        key=lambda x: x[1] if isinstance(x[1], float) else 10000)
+            )
+        )
+    print(orders_and_candidate_restaurants)
     return render(request, template_name='order_items.html', context={
         'pairs': orders_and_candidate_restaurants,
     })
