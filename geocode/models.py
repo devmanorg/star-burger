@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from foodcartapp.models import Restaurant
 
 
 class GeoCache(models.Model):
@@ -32,16 +31,3 @@ class GeoCache(models.Model):
 
     def __str__(self):
         return self.address
-
-
-def get_geo(venues):
-    restaurant_geo = GeoCache.objects.filter(
-        address__in=venues.values('address')
-    )
-    restaurant_addresses = []
-    for restaurant in restaurant_geo:
-        restaurant_addresses.append(restaurant.address)
-    print(restaurant_addresses)
-    for venue in venues:
-        if venue.address in restaurant_addresses:
-            print(venue.id)
