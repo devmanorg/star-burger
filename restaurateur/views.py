@@ -106,13 +106,13 @@ def view_orders(request):
              = foodcartapp_restaurant.address'
     )
     restaurants_geo_cache = {}
-    max_id_restaurant = 0
+    restaurant_max_id = 0
     for venue in restaurants:
         restaurants_geo_cache[venue.id] = venue.lat, venue.lon
-        if max_id_restaurant < venue.id:
-            max_id_restaurant = venue.id
-    max_id_product = Product.objects.all().order_by('id').last().id
-    interaction_matrix = np.zeros((max_id_restaurant, max_id_product),
+        if restaurant_max_id < venue.id:
+            restaurant_max_id = venue.id
+    product_max_id = Product.objects.all().order_by('id').last().id
+    interaction_matrix = np.zeros((restaurant_max_id, product_max_id),
                                   dtype=int)
     products = RestaurantMenuItem.objects.select_related(
                                                          'product',
@@ -136,7 +136,7 @@ def view_orders(request):
     for order in unclosed_orders:
         lines = order.lines.all()
         products_number = lines.count()
-        order_matrix = np.zeros((max_id_product, max_id_product), dtype=int)
+        order_matrix = np.zeros((product_max_id, product_max_id), dtype=int)
         for line in lines:
             order_matrix[line.product_id-1][line.product_id-1] = 1
         restaurants_candidate_id = (np.where(np.sum(np.dot(interaction_matrix,
