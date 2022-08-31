@@ -7,6 +7,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
+from geocode.geo_cache_api import create_or_update_coordinates
+
 from .models import Order, OrderLine, Product
 
 
@@ -108,5 +110,6 @@ def register_order(request):
             )
         OrderLine.objects.bulk_create(order_lines)
         deserializer = OrderDeserializer(new_order)
-
+    create_or_update_coordinates(serializer.validated_data['address'])
+    
     return Response(deserializer.data)

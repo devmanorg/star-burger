@@ -10,6 +10,7 @@ from .models import RestaurantMenuItem
 from .models import Order
 from .models import OrderLine
 
+from geocode.geo_cache_api import create_or_update_coordinates
 
 class RestaurantMenuItemInline(admin.TabularInline):
     model = RestaurantMenuItem
@@ -31,6 +32,10 @@ class RestaurantAdmin(admin.ModelAdmin):
     inlines = [
         RestaurantMenuItemInline
     ]
+
+    def response_post_save_change(self, request, obj):
+        create_or_update_coordinates(obj.address)
+        return super().response_post_save_change(request, obj)
 
 
 @admin.register(Product)
@@ -136,6 +141,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     def response_post_save_change(self, request, obj):
         resp = super().response_post_save_change(request, obj)
+        create_or_update_coordinates(obj.address)
         if "ids" in request.GET:
             return redirect('restaurateur:view_orders')
         else:
