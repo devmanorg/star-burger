@@ -4,6 +4,8 @@ import datetime
 from .models import GeoCache
 from django.conf import settings
 from django.utils import timezone
+from django.db import DatabaseError
+from requests.exceptions import RequestException
 
 
 def create_or_update_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
@@ -20,7 +22,7 @@ def create_or_update_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
             "format": "json",
         })
         response.raise_for_status()
-    except Exception as _:
+    except RequestException as _:
         return None
 
     found_places = response. \
@@ -28,7 +30,7 @@ def create_or_update_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
     if not found_places:
         try:
             GeoCache.objects.create(address=address)
-        except Exception as _:
+        except DatabaseError as _:
             pass
         return None
 
@@ -40,6 +42,6 @@ def create_or_update_coordinates(address, apikey=settings.API_YANDEX_TOKEN):
             lat=lat,
             lon=lon,
         )
-    except Exception as _:
+    except DatabaseError as _:
         pass
     return lat, lon
