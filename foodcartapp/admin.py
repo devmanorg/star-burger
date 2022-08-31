@@ -12,6 +12,7 @@ from .models import OrderLine
 
 from geocode.geo_cache_api import create_or_update_coordinates
 
+
 class RestaurantMenuItemInline(admin.TabularInline):
     model = RestaurantMenuItem
     extra = 0

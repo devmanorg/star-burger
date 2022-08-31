@@ -107,9 +107,9 @@ def register_order(request):
                                          quantity=order_line['quantity'],
                                          price=order_line['product'].price,
                                         )
-            )
+                               )
         OrderLine.objects.bulk_create(order_lines)
         deserializer = OrderDeserializer(new_order)
     create_or_update_coordinates(serializer.validated_data['address'])
-    
+
     return Response(deserializer.data)

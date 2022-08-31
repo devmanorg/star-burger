@@ -119,8 +119,8 @@ def view_orders(request):
                                                 'restaurant',
                                           ).filter(availability=True)
     for item in restaurant_menu_items:
-            interaction_matrix[
-                item.restaurant.id-1][item.product.id-1] = 1
+        interaction_matrix[
+            item.restaurant.id-1][item.product.id-1] = 1
     unclosed_orders = Order.objects.exclude(status_int=4). \
         order_by('status_int').prefetch_related('lines'). \
         select_related('cook_by').all()
@@ -128,7 +128,7 @@ def view_orders(request):
         'SELECT * FROM foodcartapp_order\
         LEFT JOIN geocode_geocache on\
         geocode_geocache.address=foodcartapp_order.address')
- 
+
     orders_geo_cache = {}
     for order in unclosed_orders_and_coordinates:
         orders_geo_cache[order.id] = order.lat, order.lon
@@ -149,7 +149,7 @@ def view_orders(request):
                 restaurants_candidate.append(venue)
         if not restaurants_candidate:
             orders_and_candidate_restaurants.append(
-                (order, [('Нет вариантов', 'Ошибка определения координат')])
+                (order, [(None, None)])
             )
             continue
         customer_coordinates = orders_geo_cache[order.id]
@@ -157,7 +157,7 @@ def view_orders(request):
         if not (customer_coordinates[0] and customer_coordinates[1]):
             for restaurant in restaurants_candidate:
                 restaurant_and_distance.append(
-                    (restaurant, 'Ошибка определения координат')
+                    (restaurant, None)
                 )
             orders_and_candidate_restaurants.append(
                 (order, restaurant_and_distance)
@@ -167,7 +167,7 @@ def view_orders(request):
             restaurant_coordinates = restaurants_geo_cache[restaurant.id]
             if not (restaurant_coordinates[0] and restaurant_coordinates[1]):
                 restaurant_and_distance.append(
-                    (restaurant, 'Ошибка определения координат')
+                    (restaurant, None)
                 )
                 continue
             delivery_distance = distance.distance(

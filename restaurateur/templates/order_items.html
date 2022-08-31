@@ -31,7 +31,11 @@
             <summary>Может быть приготовлен ресторанами:</summary>
             <ul>
             {% for restaurant in pair.1 %}
-              <li>{{ restaurant.0 }} - {{ restaurant.1 }} км.</li>
+              {% if restaurant.0 %}
+              <li>{{ restaurant.0 }} - {{ restaurant.1|default:'???' }} км.</li>
+              {% else %}
+              <li>Нет вариантов</li>
+              {% endif %}
             {% endfor %}
             </ul>
             </details>
