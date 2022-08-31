@@ -129,6 +129,7 @@ def view_orders(request):
         'SELECT * FROM foodcartapp_order\
         LEFT JOIN geocode_geocache on\
         geocode_geocache.address=foodcartapp_order.address')
+ 
     orders_geo_cache = {}
     for order in unclosed_orders_and_coordinates:
         orders_geo_cache[order.id] = order.lat, order.lon
@@ -144,9 +145,6 @@ def view_orders(request):
                                     axis=1) == products_number)[0]+1).tolist()
         restaurants_candidate = []
 
-        # Тупой перебор, но снижает количество SQL запросов, по сравнению с:
-        # restaurants_candidate = restaurants.filter(
-        #   id__in=restaurants_candidate_id)
         for venue in restaurants:
             if venue.id in restaurants_candidate_id:
                 restaurants_candidate.append(venue)

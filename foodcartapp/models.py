@@ -126,13 +126,6 @@ class RestaurantMenuItem(models.Model):
         return f"{self.restaurant.name} - {self.product.name}"
 
 
-class TotalCost(models.QuerySet):
-    def get_total_costs(self):
-        return self.annotate(
-            total=Sum(F('lines__price')*F('lines__quantity')),
-        )
-
-
 class Order(models.Model):
     ORDER_STATUS_INT = [
         (1, 'Создан'),
@@ -198,9 +191,6 @@ class Order(models.Model):
         null=True,
         db_index=True
     )
-
-    price = TotalCost.as_manager()
-    objects = models.Manager()
 
     class Meta:
         verbose_name = 'заказ'

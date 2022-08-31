@@ -148,6 +148,4 @@ class OrderAdmin(admin.ModelAdmin):
                     id__in=[int(x) for x in request.GET.getlist('ids')])
             except ValueError as _:
                 pass
-        # Смысл моей custom logic в замене аргументов, поэтому высушить
-        #  их здесь не получится?
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
