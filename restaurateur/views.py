@@ -114,14 +114,13 @@ def view_orders(request):
     product_max_id = Product.objects.all().order_by('id').last().id
     interaction_matrix = np.zeros((restaurant_max_id, product_max_id),
                                   dtype=int)
-    products = RestaurantMenuItem.objects.select_related(
-                                                         'product',
-                                                         'restaurant',
-                                                        ).all()
-    for product in products:
-        if product.availability:
+    restaurant_menu_items = RestaurantMenuItem.objects.select_related(
+                                                'product',
+                                                'restaurant',
+                                          ).filter(availability=True)
+    for item in restaurant_menu_items:
             interaction_matrix[
-                product.restaurant.id-1][product.product.id-1] = 1
+                item.restaurant.id-1][item.product.id-1] = 1
     unclosed_orders = Order.objects.exclude(status_int=4). \
         order_by('status_int').prefetch_related('lines'). \
         select_related('cook_by').all()
