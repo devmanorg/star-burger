@@ -97,13 +97,16 @@ def register_order(request):
             phonenumber=serializer.validated_data['phonenumber'],
             address=serializer.validated_data['address']
         )
+        order_lines = []
         for order_line in serializer.validated_data['products']:
-            OrderLine.objects.create(
-                order=new_order,
-                product=order_line['product'],
-                quantity=order_line['quantity'],
-                price=order_line['product'].price,
+            order_lines.append(OrderLine(
+                                         order=new_order,
+                                         product=order_line['product'],
+                                         quantity=order_line['quantity'],
+                                         price=order_line['product'].price,
+                                        )
             )
+        OrderLine.objects.bulk_create(order_lines)
         deserializer = OrderDeserializer(new_order)
 
     return Response(deserializer.data)
