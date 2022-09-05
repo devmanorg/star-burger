@@ -126,15 +126,15 @@ class RestaurantMenuItem(models.Model):
 
 
 class Order(models.Model):
-    ORDER_STATUS_INT = [
+    ORDER_STATUS = [
         (1, 'Создан'),
         (2, 'Сборка'),
         (3, 'Доставка'),
         (4, 'Выполнен'),
     ]
-    status_int = models.PositiveSmallIntegerField(
+    status = models.PositiveSmallIntegerField(
         verbose_name='Статус заказа',
-        choices=ORDER_STATUS_INT,
+        choices=ORDER_STATUS,
         default=1,
         db_index=True,
     )

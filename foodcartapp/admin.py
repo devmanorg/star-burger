@@ -130,7 +130,7 @@ class OrderLineInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         'id',
-        'status_int',
+        'status',
         'lastname',
         'firstname',
         'phonenumber',

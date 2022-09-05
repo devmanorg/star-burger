@@ -121,8 +121,8 @@ def view_orders(request):
     for item in restaurant_menu_items:
         interaction_matrix[
             item.restaurant.id-1][item.product.id-1] = 1
-    unclosed_orders = Order.objects.exclude(status_int=4). \
-        order_by('status_int').prefetch_related('lines'). \
+    unclosed_orders = Order.objects.exclude(status=4). \
+        order_by('status').prefetch_related('lines'). \
         select_related('cook_by').all()
     unclosed_orders_and_coordinates = Order.objects.raw(
         'SELECT * FROM foodcartapp_order\

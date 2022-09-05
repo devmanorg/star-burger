@@ -26,7 +26,7 @@
         <td>{{ pair.0.address }}</td>
         <td>{{ pair.0.comment }}</td>
         <td>
-          {% if pair.0.status_int == 1 %}
+          {% if pair.0.status == 1 %}
             <details>
             <summary>Может быть приготовлен ресторанами:</summary>
             <ul>
@@ -40,10 +40,10 @@
             </ul>
             </details>
           {% endif %}
-          {% if pair.0.status_int == 2 %}
+          {% if pair.0.status == 2 %}
               Заказ готовится в {{ pair.0.cook_by }}
           {% endif %}
-          {% if pair.0.status_int == 3 %}
+          {% if pair.0.status == 3 %}
               Заказ передан в доставку
           {% endif %}
          </td>
