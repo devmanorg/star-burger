@@ -4,6 +4,9 @@ import dj_database_url
 
 from environs import Env
 
+import rollbar
+
+from git import Repo
 
 env = Env()
 env.read_env()
@@ -15,6 +18,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
 API_YANDEX_TOKEN = env('API_YANDEX_TOKEN')
+ROLLBAR_TOKEN = env('ROLLBAR_TOKEN')
+ENVIRONMENT = env('ENVIRONMENT')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.localhost', '127.0.0.1', '[::1]'])
 
@@ -43,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -130,3 +136,13 @@ STATICFILES_DIRS = [
 
 PHONENUMBER_DB_FORMAT = "INTERNATIONAL"
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
+
+local_repo = Repo(path=BASE_DIR)
+ROLLBAR = {
+    'access_token': ROLLBAR_TOKEN,
+    'environment': ENVIRONMENT,
+    'branch': local_repo.active_branch.name,
+    'root': BASE_DIR,
+}
+
+rollbar.init(**ROLLBAR)
