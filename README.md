@@ -70,7 +70,42 @@ ROLLBAR_TOKEN=eb1c26e92fd745b484556f0e3325f080
 ```sh
 ENVIRONMENT=data_center_moscow
 ```
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+Установите базу данных POSTGRES
+```
+sudo apt-get install postgresql postgresql-contrib
+```
+Переключаемся на пользователя postgres
+```sh
+sudo su - postgres
+```
+Запускаем консоль POSTGRES:
+```sh
+psql
+```
+Создаем базу данных проекта:
+```
+postgres=# CREATE DATABASE star_burger;
+```
+Создаем пользователя, через которого будем подключаться к БД:
+```
+postgres=# CREATE USER starburger_db_user WITH PASSWORD 'password';
+```
+Делаем необходимые настройки:
+```
+postgres=# ALTER ROLE starburger_db_user SET client_encoding TO 'utf8';
+postgres=# ALTER ROLE starburger_db_user SET default_transaction_isolation TO 'read committed';
+postgres=# ALTER ROLE starburger_db_user SET timezone TO 'UTC';
+```
+Даем права нашему пользователю на созданную базу:
+```
+postgres=# GRANT ALL PRIVILEGES ON DATABASE star_burger TO starburger_db_user;
+```
+Выходим из консоли и пользователя postgres:
+```
+\q
+logout
+```
+Делаем миграции:
 
 ```sh
 python manage.py migrate
