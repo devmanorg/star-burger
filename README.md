@@ -70,7 +70,7 @@ ROLLBAR_TOKEN=eb1c26e92fd745b484556f0e3325f080
 ```sh
 ENVIRONMENT=data_center_moscow
 ```
-Установите базу данных POSTGRES
+Установите базу данных Postgres
 ```
 sudo apt-get install postgresql postgresql-contrib
 ```
@@ -78,7 +78,7 @@ sudo apt-get install postgresql postgresql-contrib
 ```sh
 sudo su - postgres
 ```
-Запускаем консоль POSTGRES:
+Запускаем консоль Postgres:
 ```sh
 psql
 ```
