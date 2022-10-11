@@ -195,10 +195,11 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `API_YANDEX_TOKEN` - Токен для API Яндекс-геокодера, полученный в [кабинете разработчика](https://developer.tech.yandex.ru/)
 
-Для последующего быстрого обновления сайта достаточно запустить скрипт `deploy_star_burger.sh`, который должен лежать рядом с папкой репозитория (не в ней самой!). Образец скрипта лежит в папке scripts.
+Для последующего быстрого обновления сайта достаточно запустить скрипт `deploy_star_burger.sh`, который должен лежать рядом с папкой репозитория (не в ней самой!). Образец скрипта лежит в папке scripts. В нем необходимо заменить в последней команде `https` параметры `POST_SERVER_ACCESS_TOKEN`, `environment` и `local_username` на ваши актуальные значения.
 ```sh
 ./deploy_star_burger.sh
 ```
+Скрипт использует модуль httpie. [Инструкция по установке](https://httpie.io/docs/cli/installation).
 
 ## Цели проекта
 
