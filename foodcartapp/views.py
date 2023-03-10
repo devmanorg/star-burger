@@ -85,8 +85,12 @@ def register_order(request):
         address=serializer.validated_data['address'],
     )
     for product_order in products_in_order:
+        product = product_order['product']
         order.products.add(
-            product_order['product'],
-            through_defaults={'quantity': product_order['quantity']}
+            product,
+            through_defaults={
+                'quantity': product_order['quantity'],
+                'product_price': product.price,
+            }
         )
     return Response(serializer.data)

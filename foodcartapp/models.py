@@ -127,7 +127,7 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def with_totals(self):
-        return self.annotate(total=F('products_ordered__product__price') * F('products_ordered__quantity'))
+        return self.annotate(total=F('products_ordered__product_price') * F('products_ordered__quantity'))
 
 
 class ProductOrder(models.Model):
@@ -141,7 +141,14 @@ class ProductOrder(models.Model):
         on_delete=models.CASCADE,
         related_name='products_ordered'
     )
-    quantity = models.IntegerField('количество')
+    quantity = models.PositiveIntegerField('количество')
+    product_price = models.DecimalField(
+        'цена товара',
+        max_digits=8,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        blank=True,
+    )
 
     def __str__(self):
         return f'{self.product}, {self.quantity}'
