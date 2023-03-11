@@ -7,6 +7,7 @@ from rest_framework.serializers import ModelSerializer
 
 from .models import Product, Order, ProductOrder
 
+
 def banners_list_api(request):
     # FIXME move data to db?
     return JsonResponse([
