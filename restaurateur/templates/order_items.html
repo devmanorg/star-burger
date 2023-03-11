@@ -14,6 +14,7 @@
    <table class="table table-responsive">
     <tr>
       <th>ID заказа</th>
+      <th>Статус</th>
       <th>Стоимость</th>
       <th>Клиент</th>
       <th>Телефон</th>
@@ -24,6 +25,7 @@
     {% for order in orders %}
       <tr>
         <td>{{ order.id }}</td>
+        <td>{{ order.get_status_display }}</td>
         <td>{{ order.total|floatformat:"2g" }} ₽ </td>
         <td>{{ order.firstname }} {{ order.lastname }}</td>
         <td>{{ order.phonenumber }}</td>

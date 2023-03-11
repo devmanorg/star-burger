@@ -125,11 +125,6 @@ class RestaurantMenuItem(models.Model):
         return f"{self.restaurant.name} - {self.product.name}"
 
 
-class OrderQuerySet(models.QuerySet):
-    def with_totals(self):
-        return self.annotate(total=F('products_ordered__product_price') * F('products_ordered__quantity'))
-
-
 class ProductOrder(models.Model):
     product = models.ForeignKey(
         'Product',
@@ -154,7 +149,19 @@ class ProductOrder(models.Model):
         return f'{self.product}, {self.quantity}'
 
 
+class OrderQuerySet(models.QuerySet):
+    def with_totals(self):
+        return self.annotate(total=F('products_ordered__product_price') * F('products_ordered__quantity'))
+
+
 class Order(models.Model):
+
+    class Status(models.IntegerChoices):
+        NEW = 0, 'Не обработан'
+        PREPARING = 1, 'Готовится'
+        DELIVERING = 2, 'В пути'
+        COMPLETE = 3, 'Доставлен'
+
     firstname = models.CharField(
         'имя',
         max_length=50,
@@ -181,6 +188,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(
         'время создания',
         auto_now=True,
+    )
+    status = models.SmallIntegerField(
+        'статус',
+        choices=Status.choices,
+        default=Status.NEW,
+        db_index=True,
     )
 
     objects = OrderQuerySet.as_manager()
