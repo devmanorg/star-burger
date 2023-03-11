@@ -111,6 +111,7 @@ class ProductAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     pass
 
+
 class ProductOrderInlineForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -127,6 +128,7 @@ class ProductOrderInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     inlines = [ProductOrderInline]
     list_display = ('firstname', 'lastname', 'phonenumber', 'created_at')
+    readonly_fields = ('created_at',)
 
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)

@@ -185,10 +185,6 @@ class Order(models.Model):
         related_name='order',
         through='ProductOrder',
     )
-    created_at = models.DateTimeField(
-        'время создания',
-        auto_now=True,
-    )
     status = models.SmallIntegerField(
         'статус',
         choices=Status.choices,
@@ -198,6 +194,23 @@ class Order(models.Model):
     comment = models.TextField(
         'комментарий',
         blank=True,
+    )
+    created_at = models.DateTimeField(
+        'время создания',
+        auto_now_add=True,
+        db_index=True,
+    )
+    called_at = models.DateTimeField(
+        'время звонка',
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+    delivered_at = models.DateTimeField(
+        'когда доставлен',
+        blank=True,
+        null=True,
+        db_index=True,
     )
 
     objects = OrderQuerySet.as_manager()
