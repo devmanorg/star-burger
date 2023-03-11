@@ -162,6 +162,11 @@ class Order(models.Model):
         DELIVERING = 2, 'В пути'
         COMPLETE = 3, 'Доставлен'
 
+    class PaymentMethod(models.TextChoices):
+        CASH = 'CASH', 'Наличные'
+        CARD = 'CARD', 'Карта'
+        __empty__ = ''
+
     firstname = models.CharField(
         'имя',
         max_length=50,
@@ -208,6 +213,14 @@ class Order(models.Model):
     )
     delivered_at = models.DateTimeField(
         'когда доставлен',
+        blank=True,
+        null=True,
+        db_index=True,
+    )
+    payment_method = models.CharField(
+        'способ оплаты',
+        choices=PaymentMethod.choices,
+        max_length=4,
         blank=True,
         null=True,
         db_index=True,

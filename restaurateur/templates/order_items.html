@@ -18,6 +18,7 @@
       <th>Статус</th>
       <th>Время создания</th>
       <th>Стоимость</th>
+      <th>Способ оплаты</th>
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
@@ -31,6 +32,7 @@
         <td>{{ order.get_status_display }}</td>
         <td>{{ order.created_at|naturaltime }}</td>
         <td>{{ order.total|floatformat:"2g" }} ₽ </td>
+        <td>{{ order.get_payment_method_display }}</td>
         <td>{{ order.firstname }} {{ order.lastname }}</td>
         <td>{{ order.phonenumber }}</td>
         <td>{{ order.address }}</td>
