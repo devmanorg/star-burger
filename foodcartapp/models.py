@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import F, Sum
@@ -225,6 +227,14 @@ class Order(models.Model):
         null=True,
         db_index=True,
     )
+    restaurant = models.ForeignKey(
+        'Restaurant',
+        verbose_name='ответственный ресторан',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='orders',
+    )
 
     objects = OrderQuerySet.as_manager()
 
@@ -234,3 +244,16 @@ class Order(models.Model):
 
     def __str__(self):
         return f'{self.id}: {self.firstname} {self.lastname[:1]}., {self.created_at:%d.%m.%y %H:%M:%S}'
+
+    def available_restaurants(self):
+        ordered_products = self.products.all()
+        products_in_restaurants = (
+            RestaurantMenuItem.objects
+            .filter(product__in=ordered_products, availability=True)
+            .values_list('product', 'restaurant')
+        )
+        restaurants_by_product = defaultdict(set)
+        for product, restaurant in products_in_restaurants:
+            restaurants_by_product[product].add(restaurant)
+        available_restaurant_ids = set.intersection(*restaurants_by_product.values())
+        return Restaurant.objects.filter(pk__in=available_restaurant_ids)
