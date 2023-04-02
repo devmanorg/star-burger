@@ -43,7 +43,12 @@
             <details>
               <summary>Могут приготовить:</summary>
               {% for rest in order.available_restaurants %}
-                <li>{{ rest }}</li>
+                <li>{{ rest }}:
+                {% if rest.distance %}
+                  {{ rest.distance|floatformat:'2g' }} км</li>
+                {% else %}
+                  Расстояние недоступно
+                {% endif %}
               {% endfor %}
             </details>
           {% else %}

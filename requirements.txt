@@ -5,3 +5,4 @@ environs[django]==9.3.2
 wheel==0.38.4
 django-phonenumber-field[phonenumbers]==7.0.2
 djangorestframework==3.14.0
+geopy~=2.3.0

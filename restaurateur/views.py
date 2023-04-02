@@ -1,12 +1,15 @@
-from collections import defaultdict
+from copy import copy
 
+import geopy.exc
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
+from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from geopy import geocoders, distance
 
 from foodcartapp.models import Product, Restaurant, Order, ProductOrder, RestaurantMenuItem
 
@@ -92,18 +95,41 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.exclude(status=Order.Status.COMPLETE).with_totals()
+    geocoder = geocoders.Yandex(api_key=settings.YANDEX_GEO_KEY)
+    orders = Order.objects.exclude(status=Order.Status.COMPLETE).with_totals().prefetch_related('restaurant')
     ordered_products = ProductOrder.objects.filter(order__in=orders).prefetch_related('product', 'order')
     products_in_restaurants = (
         RestaurantMenuItem.objects
         .filter(product__in=[order.product for order in ordered_products], availability=True)
         .prefetch_related('restaurant', 'product')
     )
+    for pr in products_in_restaurants:
+        try:
+            pr.restaurant.location = geocoder.geocode(pr.restaurant.address)
+        except geopy.exc.GeocoderServiceError:
+            pr.restaurant.location = None
+
     for order in orders:
+        try:
+            order.location = geocoder.geocode(order.address)
+        except geopy.exc.GeocoderServiceError:
+            order.location = None
         required_product_ids = [op.product.id for op in ordered_products if op.order == order]
         order.available_restaurants = {
-            pr.restaurant for pr in products_in_restaurants if pr.product.id in required_product_ids
+            copy(pr.restaurant) for pr in products_in_restaurants if pr.product.id in required_product_ids
         }
+        for restaurant in order.available_restaurants:
+            try:
+                restaurant.distance = distance.distance(
+                    (order.location.latitude, order.location.longitude),
+                    (restaurant.location.latitude, restaurant.location.longitude),
+                ).km
+            except AttributeError:
+                restaurant.distance = None
+        order.available_restaurants = sorted(
+            order.available_restaurants,
+            key=lambda rest: rest.distance,
+        )
 
     return render(request, template_name='order_items.html', context={
         'orders': orders,
