@@ -1,13 +1,14 @@
+from collections import defaultdict
+
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, ProductOrder, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -91,6 +92,19 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    orders = Order.objects.exclude(status=Order.Status.COMPLETE).with_totals()
+    ordered_products = ProductOrder.objects.filter(order__in=orders).prefetch_related('product', 'order')
+    products_in_restaurants = (
+        RestaurantMenuItem.objects
+        .filter(product__in=[order.product for order in ordered_products], availability=True)
+        .prefetch_related('restaurant', 'product')
+    )
+    for order in orders:
+        required_product_ids = [op.product.id for op in ordered_products if op.order == order]
+        order.available_restaurants = {
+            pr.restaurant for pr in products_in_restaurants if pr.product.id in required_product_ids
+        }
+
     return render(request, template_name='order_items.html', context={
-        'orders': Order.objects.exclude(status=Order.Status.COMPLETE).with_totals()
+        'orders': orders,
     })
