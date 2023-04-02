@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
 from .models import Product, Order, ProductOrder
+from places.models import Location
 
 
 def banners_list_api(request):
@@ -95,4 +96,5 @@ def register_order(request):
                 'product_price': product.price,
             }
         )
+    Location.update_by_address(order.address)
     return Response(serializer.data)

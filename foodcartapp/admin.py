@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.forms import ModelForm
 from django.http import HttpResponseRedirect
@@ -12,7 +13,13 @@ from .models import Restaurant
 from .models import RestaurantMenuItem
 from .models import Order
 from .models import ProductOrder
-from star_burger.settings import ALLOWED_HOSTS
+from places.models import Location
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ['address', 'latitude', 'longitude', 'updated_at']
+    readonly_fields = ['updated_at']
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -35,6 +42,10 @@ class RestaurantAdmin(admin.ModelAdmin):
     inlines = [
         RestaurantMenuItemInline
     ]
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        Location.update_by_address(obj.address)
 
 
 @admin.register(Product)
@@ -130,6 +141,10 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('firstname', 'lastname', 'phonenumber', 'created_at')
     readonly_fields = ('created_at',)
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        Location.update_by_address(obj.address)
+
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
         for obj in formset.deleted_objects:
@@ -143,7 +158,7 @@ class OrderAdmin(admin.ModelAdmin):
     def response_change(self, request, obj):
         response = super().response_change(request, obj)
         if "next" in request.GET:
-            if url_has_allowed_host_and_scheme(request.GET['next'], ALLOWED_HOSTS):
+            if url_has_allowed_host_and_scheme(request.GET['next'], settings.ALLOWED_HOSTS):
                 return HttpResponseRedirect(request.GET['next'])
         else:
             return response

@@ -1,17 +1,16 @@
 from copy import copy
 
-import geopy.exc
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
-from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from geopy import geocoders, distance
+from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, ProductOrder, RestaurantMenuItem
+from places.models import Location
 
 
 class Login(forms.Form):
@@ -95,7 +94,6 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    geocoder = geocoders.Yandex(api_key=settings.YANDEX_GEO_KEY)
     orders = Order.objects.exclude(status=Order.Status.COMPLETE).with_totals().prefetch_related('restaurant')
     ordered_products = ProductOrder.objects.filter(order__in=orders).prefetch_related('product', 'order')
     products_in_restaurants = (
@@ -105,14 +103,14 @@ def view_orders(request):
     )
     for pr in products_in_restaurants:
         try:
-            pr.restaurant.location = geocoder.geocode(pr.restaurant.address)
-        except geopy.exc.GeocoderServiceError:
+            pr.restaurant.location = Location.objects.get(address=pr.restaurant.address)
+        except Location.DoesNotExist:
             pr.restaurant.location = None
 
     for order in orders:
         try:
-            order.location = geocoder.geocode(order.address)
-        except geopy.exc.GeocoderServiceError:
+            order.location = Location.objects.get(address=order.address)
+        except Location.DoesNotExist:
             order.location = None
         required_product_ids = [op.product.id for op in ordered_products if op.order == order]
         order.available_restaurants = {
@@ -128,7 +126,7 @@ def view_orders(request):
                 restaurant.distance = None
         order.available_restaurants = sorted(
             order.available_restaurants,
-            key=lambda rest: rest.distance,
+            key=lambda rest: rest.distance or 0,
         )
 
     return render(request, template_name='order_items.html', context={
