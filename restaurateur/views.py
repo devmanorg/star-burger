@@ -101,17 +101,18 @@ def view_orders(request):
         .filter(product__in=[order.product for order in ordered_products], availability=True)
         .prefetch_related('restaurant', 'product')
     )
+
+    addresses = [order.address for order in orders] + [pr.restaurant.address for pr in products_in_restaurants]
+    locations = Location.objects.filter(address__in=addresses)
+    locations_by_address = {address: None for address in addresses}
+    for location in locations:
+        locations_by_address[location.address] = location
+
     for pr in products_in_restaurants:
-        try:
-            pr.restaurant.location = Location.objects.get(address=pr.restaurant.address)
-        except Location.DoesNotExist:
-            pr.restaurant.location = None
+        pr.restaurant.location = locations_by_address.get(pr.restaurant.address)
 
     for order in orders:
-        try:
-            order.location = Location.objects.get(address=order.address)
-        except Location.DoesNotExist:
-            order.location = None
+        order.location = locations_by_address.get(order.address)
         required_product_ids = [op.product.id for op in ordered_products if op.order == order]
         order.available_restaurants = {
             copy(pr.restaurant) for pr in products_in_restaurants if pr.product.id in required_product_ids
