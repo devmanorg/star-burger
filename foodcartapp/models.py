@@ -227,7 +227,7 @@ class Order(models.Model):
         null=True,
         db_index=True,
     )
-    restaurant = models.ForeignKey(
+    assigned_restaurant = models.ForeignKey(
         'Restaurant',
         verbose_name='ответственный ресторан',
         on_delete=models.SET_NULL,

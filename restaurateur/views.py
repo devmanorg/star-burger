@@ -94,7 +94,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.exclude(status=Order.Status.COMPLETE).with_totals().prefetch_related('restaurant')
+    orders = Order.objects.exclude(status=Order.Status.COMPLETE).with_totals().prefetch_related('assigned_restaurant')
     ordered_products = ProductOrder.objects.filter(order__in=orders).prefetch_related('product', 'order')
     products_in_restaurants = (
         RestaurantMenuItem.objects
@@ -102,20 +102,20 @@ def view_orders(request):
         .prefetch_related('restaurant', 'product')
     )
 
-    addresses = [order.address for order in orders] + [pr.restaurant.address for pr in products_in_restaurants]
+    addresses = [order.address for order in orders] + [pr.assigned_restaurant.address for pr in products_in_restaurants]
     locations = Location.objects.filter(address__in=addresses)
     locations_by_address = {address: None for address in addresses}
     for location in locations:
         locations_by_address[location.address] = location
 
     for pr in products_in_restaurants:
-        pr.restaurant.location = locations_by_address.get(pr.restaurant.address)
+        pr.assigned_restaurant.location = locations_by_address.get(pr.assigned_restaurant.address)
 
     for order in orders:
         order.location = locations_by_address.get(order.address)
         required_product_ids = [op.product.id for op in ordered_products if op.order == order]
         order.available_restaurants = {
-            copy(pr.restaurant) for pr in products_in_restaurants if pr.product.id in required_product_ids
+            copy(pr.assigned_restaurant) for pr in products_in_restaurants if pr.product.id in required_product_ids
         }
         for restaurant in order.available_restaurants:
             try:
