@@ -3,9 +3,9 @@ from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
 
-from .models import Product, Order, ProductOrder
+from .models import Product, Order
+from .serializers import OrderSerializer
 from places.models import Location
 
 
@@ -59,20 +59,6 @@ def product_list_api(request):
         'ensure_ascii': False,
         'indent': 4,
     })
-
-
-class ProductOrderSerializer(ModelSerializer):
-    class Meta:
-        model = ProductOrder
-        fields = ['product', 'quantity']
-
-
-class OrderSerializer(ModelSerializer):
-    products = ProductOrderSerializer(many=True, allow_empty=False)
-
-    class Meta:
-        model = Order
-        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
 
 
 @transaction.atomic
