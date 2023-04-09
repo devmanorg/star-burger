@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import F, Sum
 from phonenumber_field.modelfields import PhoneNumberField
@@ -138,7 +138,13 @@ class ProductOrder(models.Model):
         on_delete=models.CASCADE,
         related_name='products_ordered'
     )
-    quantity = models.PositiveIntegerField('количество')
+    quantity = models.PositiveIntegerField(
+        'количество',
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(1000),
+        ]
+    )
     product_price = models.DecimalField(
         'цена товара',
         max_digits=8,
