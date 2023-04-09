@@ -53,7 +53,7 @@
             </details>
           {% else %}
             Передан в ресторан:
-            {{ order.restaurant }}
+            {{ order.assigned_restaurant }}
           {% endif %}
         </td>
         <td><a href="{% url "admin:foodcartapp_order_change" order.id %}?next={{ request.get_full_path|urlencode }}">
