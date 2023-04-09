@@ -41,4 +41,10 @@ class Location(models.Model):
                 },
             )
         except (geopy.exc.GeocoderServiceError, AttributeError):
-            pass
+            cls.objects.get_or_create(
+                address=address,
+                defaults={
+                    'latitude': None,
+                    'longitude': None,
+                },
+            )
