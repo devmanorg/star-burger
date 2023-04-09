@@ -11,10 +11,14 @@ class Location(models.Model):
         unique=True,
     )
     latitude = models.FloatField(
-        'широта'
+        'широта',
+        blank=True,
+        null=True,
     )
     longitude = models.FloatField(
-        'долгота'
+        'долгота',
+        blank=True,
+        null=True,
     )
     updated_at = models.DateTimeField(
         'обновлено',
