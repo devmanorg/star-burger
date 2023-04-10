@@ -94,28 +94,25 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.exclude(status=Order.Status.COMPLETE).with_totals().prefetch_related('assigned_restaurant')
-    ordered_products = ProductOrder.objects.filter(order__in=orders).prefetch_related('product', 'order')
-    products_in_restaurants = (
-        RestaurantMenuItem.objects
-        .filter(product__in=[order.product for order in ordered_products], availability=True)
-        .prefetch_related('restaurant', 'product')
-    )
+    active_orders = Order.objects.active().with_totals()
+    active_product_orders = ProductOrder.objects.in_orders(active_orders)
+    ordered_products = set(product_order.product for product_order in active_product_orders)
+    ordered_menu_items = RestaurantMenuItem.objects.include_products(ordered_products)
 
-    addresses = [order.address for order in orders] + [pr.restaurant.address for pr in products_in_restaurants]
+    addresses = [order.address for order in active_orders] + [pr.restaurant.address for pr in ordered_menu_items]
     locations = Location.objects.filter(address__in=addresses)
     locations_by_address = {address: None for address in addresses}
     for location in locations:
         locations_by_address[location.address] = location
 
-    for pr in products_in_restaurants:
+    for pr in ordered_menu_items:
         pr.restaurant.location = locations_by_address.get(pr.restaurant.address)
 
-    for order in orders:
+    for order in active_orders:
         order.location = locations_by_address.get(order.address)
-        required_product_ids = [op.product.id for op in ordered_products if op.order == order]
+        required_product_ids = [op.product.id for op in active_product_orders if op.order == order]
         order.available_restaurants = {
-            copy(pr.restaurant) for pr in products_in_restaurants if pr.product.id in required_product_ids
+            copy(pr.restaurant) for pr in ordered_menu_items if pr.product.id in required_product_ids
         }
         for restaurant in order.available_restaurants:
             try:
@@ -131,5 +128,5 @@ def view_orders(request):
         )
 
     return render(request, template_name='order_items.html', context={
-        'orders': orders,
+        'orders': active_orders,
     })

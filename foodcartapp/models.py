@@ -97,6 +97,15 @@ class Product(models.Model):
         return self.name
 
 
+class RestaurantMenuItemQuerySet(models.QuerySet):
+    def include_products(self, products: list | models.QuerySet):
+        return (
+            self
+            .filter(product__in=[product.id for product in products], availability=True)
+            .prefetch_related('restaurant', 'product')
+        )
+
+
 class RestaurantMenuItem(models.Model):
     restaurant = models.ForeignKey(
         Restaurant,
@@ -116,6 +125,8 @@ class RestaurantMenuItem(models.Model):
         db_index=True
     )
 
+    objects = RestaurantMenuItemQuerySet.as_manager()
+
     class Meta:
         verbose_name = 'пункт меню ресторана'
         verbose_name_plural = 'пункты меню ресторана'
@@ -125,6 +136,11 @@ class RestaurantMenuItem(models.Model):
 
     def __str__(self):
         return f"{self.restaurant.name} - {self.product.name}"
+
+
+class ProductOrderQuerySet(models.QuerySet):
+    def in_orders(self, orders: models.QuerySet):
+        return self.filter(order__in=orders).prefetch_related('product', 'order')
 
 
 class ProductOrder(models.Model):
@@ -153,6 +169,8 @@ class ProductOrder(models.Model):
         blank=True,
     )
 
+    objects = ProductOrderQuerySet.as_manager()
+
     def __str__(self):
         return f'{self.product}, {self.quantity}'
 
@@ -160,6 +178,9 @@ class ProductOrder(models.Model):
 class OrderQuerySet(models.QuerySet):
     def with_totals(self):
         return self.annotate(total=Sum(F('products_ordered__product_price') * F('products_ordered__quantity')))
+
+    def active(self):
+        return self.exclude(status=Order.Status.COMPLETE).prefetch_related('assigned_restaurant')
 
 
 class Order(models.Model):
