@@ -101,9 +101,7 @@ def view_orders(request):
 
     addresses = [order.address for order in active_orders] + [pr.restaurant.address for pr in ordered_menu_items]
     locations = Location.objects.filter(address__in=addresses)
-    locations_by_address = {address: None for address in addresses}
-    for location in locations:
-        locations_by_address[location.address] = location
+    locations_by_address = {location.address: location for location in locations}
 
     for menu_item in ordered_menu_items:
         menu_item.restaurant.location = locations_by_address.get(menu_item.restaurant.address)
