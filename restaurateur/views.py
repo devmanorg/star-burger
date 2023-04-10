@@ -105,14 +105,15 @@ def view_orders(request):
     for location in locations:
         locations_by_address[location.address] = location
 
-    for pr in ordered_menu_items:
-        pr.restaurant.location = locations_by_address.get(pr.restaurant.address)
+    for menu_item in ordered_menu_items:
+        menu_item.restaurant.location = locations_by_address.get(menu_item.restaurant.address)
 
     for order in active_orders:
         order.location = locations_by_address.get(order.address)
-        required_product_ids = [op.product.id for op in active_product_orders if op.order == order]
+        required_product_ids = [po.product.id for po in active_product_orders if po.order == order]
         order.available_restaurants = {
-            copy(pr.restaurant) for pr in ordered_menu_items if pr.product.id in required_product_ids
+            copy(menu_item.restaurant) for menu_item in ordered_menu_items
+            if menu_item.product.id in required_product_ids
         }
         for restaurant in order.available_restaurants:
             try:
