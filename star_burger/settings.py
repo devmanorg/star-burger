@@ -42,6 +42,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -130,3 +131,9 @@ STATICFILES_DIRS = [
 PHONENUMBER_DEFAULT_REGION = 'RU'
 
 YANDEX_GEO_KEY = env.str('YANDEX_GEO_KEY')
+
+ROLLBAR = {
+    'access_token': env.str('ROLLBAR_TOKEN'),
+    'environment': env.str('ROLLBAR_ENV'),
+    'root': BASE_DIR,
+}
