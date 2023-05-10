@@ -140,17 +140,43 @@ Parcel будет следить за файлами в каталоге `bundle
 
 ## Как запустить prod-версию сайта
 
-Собрать фронтенд:
+### Собрать фронтенд:
 
 ```sh
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 ```
 
-Настроить бэкенд: создать файл `.env` в каталоге `star_burger/` со следующими настройками:
+### Настроить бэкенд:
+
+Установить зависимости для [psycopg2](https://stackoverflow.com/questions/5420789/how-to-install-psycopg2-with-pip-on-python/30995812#30995812):
+```sh
+pip install psycopg2
+```
+
+Запустить Docker-контейнер с БД (замените все `...` на свои значения):
+```sh
+docker run -d \
+--name starburger-postgres \
+-p 5432:5432 \
+-e POSTGRES_USER=... \
+-e POSTGRES_PASSWORD=... \
+-e POSTGRES_DB=... \
+-v starburger-postgres:/var/lib/postgresql/data \
+postgres:14
+```
+
+Создать файл `.env` в каталоге `star_burger/` со следующими настройками:
 
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
+- `DB_URL=postgresql://юзер:пароль@localhost:5432/имя-бд`
+
+Создать таблицы и импортировать данные в БД:
+```sh
+./manage.py migrate
+./manage.py loaddata data/db_dump.json
+```
 
 ## Цели проекта
 

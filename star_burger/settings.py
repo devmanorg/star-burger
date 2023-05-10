@@ -86,8 +86,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
+    'default': env.dj_db_url(
+        'DB_URL',
+        default=f'sqlite:////{os.path.join(BASE_DIR, "db.sqlite3")}'
     )
 }
 
@@ -134,6 +135,6 @@ YANDEX_GEO_KEY = env.str('YANDEX_GEO_KEY')
 
 ROLLBAR = {
     'access_token': env.str('ROLLBAR_TOKEN'),
-    'environment': env.str('ROLLBAR_ENV'),
+    'environment': env.str('ROLLBAR_ENV', 'development'),
     'root': BASE_DIR,
 }
