@@ -150,7 +150,7 @@ Parcel будет следить за файлами в каталоге `bundle
 
 Установить зависимости для [psycopg2](https://stackoverflow.com/questions/5420789/how-to-install-psycopg2-with-pip-on-python/30995812#30995812):
 ```sh
-pip install psycopg2
+apt-get install libpq-dev
 ```
 
 Запустить Docker-контейнер с БД (замените все `...` на свои значения):
@@ -161,7 +161,7 @@ docker run -d \
 -e POSTGRES_USER=... \
 -e POSTGRES_PASSWORD=... \
 -e POSTGRES_DB=... \
--v starburger-postgres:/var/lib/postgresql/data \
+-v starburger_postgres:/var/lib/postgresql/data \
 postgres:14
 ```
 
