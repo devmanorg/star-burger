@@ -148,34 +148,21 @@ Parcel будет следить за файлами в каталоге `bundle
 
 ### Настроить бэкенд:
 
-Установить зависимости для [psycopg2](https://stackoverflow.com/questions/5420789/how-to-install-psycopg2-with-pip-on-python/30995812#30995812):
-```sh
-apt-get install libpq-dev
-```
-
-Запустить Docker-контейнер с БД (замените все `...` на свои значения):
-```sh
-docker run -d \
---name starburger-postgres \
--p 5432:5432 \
--e POSTGRES_USER=... \
--e POSTGRES_PASSWORD=... \
--e POSTGRES_DB=... \
--v starburger_postgres:/var/lib/postgresql/data \
-postgres:14
-```
-
 Создать файл `.env` в каталоге `star_burger/` со следующими настройками:
 
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
-- `DB_URL=postgresql://юзер:пароль@localhost:5432/имя-бд`
+- `POSTGRES_USER=...`
+- `POSTGRES_PASSWORD=...`
+- `POSTGRES_DB=...`
+- `DB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}` — в этой строке ничего менять не нужно
 
-Создать таблицы и импортировать данные в БД:
+Убедиться, что в каталоге `star-burger/data` лежат данные, которые нужно загрузить в БД.
+Затем запустить из каталога `star-burger/` скрипт, который установит зависимости для Postgres и подготовит контейнер с БД:
 ```sh
-./manage.py migrate
-./manage.py loaddata data/db_dump.json
+chmod u+x scripts/deploy_postgres.sh
+scripts/deploy_postgres.sh
 ```
 
 ## Цели проекта
