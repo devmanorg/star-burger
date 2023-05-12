@@ -159,10 +159,16 @@ Parcel будет следить за файлами в каталоге `bundle
 - `DB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}` — в этой строке ничего менять не нужно
 
 Убедиться, что в каталоге `star-burger/data` лежат данные, которые нужно загрузить в БД.
-Затем запустить из каталога `star-burger/` скрипт, который установит зависимости для Postgres и подготовит контейнер с БД:
+Убедиться, что на сервере установлен Docker.
+Затем запустить из каталога `star-burger/` скрипт, который установит зависимости и подготовит контейнер с БД:
 ```sh
 chmod u+x scripts/deploy_postgres.sh
 scripts/deploy_postgres.sh
+```
+
+### Подтянуть изменения в репозитории и перезапустить сервисы:
+```shell
+scripts/deploy_star_burger.sh
 ```
 
 ## Цели проекта
