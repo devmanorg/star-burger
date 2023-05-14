@@ -1,3 +1,5 @@
+"""Helper script to be used at the end of deploy_star_burger.sh"""
+
 import subprocess
 
 import requests
@@ -7,7 +9,7 @@ from environs import Env
 env = Env()
 env.read_env()
 
-commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], encoding='UTF-8').strip()
+commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], encoding='UTF-8').strip()
 
 url = 'https://api.rollbar.com/api/1/deploy'
 headers = {
@@ -15,12 +17,11 @@ headers = {
     'content-type': 'application/json',
     'X-Rollbar-Access-Token': env.str('ROLLBAR_TOKEN'),
 }
-data = {
+payload = {
     'environment': env.str('ROLLBAR_ENV'),
     'revision': commit_hash,
-    # 'status': 'succeeded',
     'rollbar_username': env.str('ROLLBAR_USERNAME')
 }
 
-response = requests.post(url, headers=headers, json=data)
+response = requests.post(url, headers=headers, json=payload)
 response.raise_for_status()
