@@ -18,4 +18,6 @@ venv/bin/python manage.py migrate
 systemctl restart starburger-django.service
 systemctl reload nginx
 
+venv/bin/python scripts/report_deploy_rollbar.py
+
 echo "Project updated."

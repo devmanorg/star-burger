@@ -162,8 +162,8 @@ Parcel будет следить за файлами в каталоге `bundle
 Убедиться, что на сервере установлен Docker.
 Затем запустить из каталога `star-burger/` скрипт, который установит зависимости и подготовит контейнер с БД:
 ```sh
-chmod u+x scripts/deploy_postgres.sh
-scripts/deploy_postgres.sh
+chmod u+x scripts/init_postgres.sh
+scripts/init_postgres.sh
 ```
 
 ### Подтянуть изменения в репозитории и перезапустить сервисы:
