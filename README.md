@@ -166,6 +166,12 @@ chmod u+x scripts/init_postgres.sh
 scripts/init_postgres.sh
 ```
 
+Чтобы получать мгновенные уведомления об ошибках, подключите свой аккаунт [Rollbar](https://docs.rollbar.com/docs/setup)
+и добавьте следующие переменные в `.env`:
+- `ROLLBAR_TOKEN=...`
+- `ROLLBAR_ENV=...` - development/production/...
+- `ROLLBAR_USERNAME=...`
+
 ### Подтянуть изменения в репозитории и перезапустить сервисы:
 ```shell
 scripts/deploy_star_burger.sh

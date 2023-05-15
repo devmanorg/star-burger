@@ -134,7 +134,7 @@ PHONENUMBER_DEFAULT_REGION = 'RU'
 YANDEX_GEO_KEY = env.str('YANDEX_GEO_KEY')
 
 ROLLBAR = {
-    'access_token': env.str('ROLLBAR_TOKEN'),
+    'access_token': env.str('ROLLBAR_TOKEN', None),
     'environment': env.str('ROLLBAR_ENV', 'development'),
     'root': BASE_DIR,
 }
