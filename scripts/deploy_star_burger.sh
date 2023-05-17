@@ -14,7 +14,7 @@ npm audit fix
 venv/bin/pip install -U -r requirements.txt
 node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 venv/bin/python manage.py collectstatic --noinput
-venv/bin/python manage.py migrate
+venv/bin/python manage.py migrate --noinput
 systemctl restart starburger-django.service
 systemctl reload nginx
 
