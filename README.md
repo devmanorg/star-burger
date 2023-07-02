@@ -1,4 +1,4 @@
-# Сайт доставки еды [Star Burger](https://starburger.mavel.cc/)
+# Сайт доставки еды [Star Burger](http://starburger.mavel.cc/)
 
 Это сайт сети ресторанов Star Burger. Здесь можно заказать превосходные бургеры с доставкой на дом.
 
