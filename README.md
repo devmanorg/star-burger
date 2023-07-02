@@ -173,6 +173,10 @@ systemctl start starburger  # запустить
 systemctl status starburger  # посмотреть на статус и stdout
 ```
 
+### Подтянуть изменения из репозитория и перезапустить сервисы:
+```sh
+scripts/deploy.sh
+```
 
 ## Цели проекта
 
