@@ -6,7 +6,7 @@ After=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-WorkingDirectory=/opt/star-burger/project
+WorkingDirectory=/opt/star-burger/
 ExecStart=docker compose up -d
 ExecStop=docker compose down
 TimeoutStartSec=0
