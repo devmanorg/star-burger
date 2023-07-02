@@ -140,15 +140,9 @@ Parcel будет следить за файлами в каталоге `bundle
 
 ## Как запустить prod-версию сайта
 
-### Собрать фронтенд:
-
-```sh
-./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
-```
-
 ### Настроить бэкенд:
 
-Создать файл `.env` в каталоге `star_burger/` со следующими настройками:
+Создать файл `.env` в корневом каталоге проекта со следующими настройками:
 
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
@@ -156,15 +150,9 @@ Parcel будет следить за файлами в каталоге `bundle
 - `POSTGRES_USER=...`
 - `POSTGRES_PASSWORD=...`
 - `POSTGRES_DB=...`
-- `DB_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}` — в этой строке ничего менять не нужно
 
 Убедиться, что в каталоге `star-burger/data` лежат данные, которые нужно загрузить в БД.
 Убедиться, что на сервере установлен Docker.
-Затем запустить из каталога `star-burger/` скрипт, который установит зависимости и подготовит контейнер с БД:
-```sh
-chmod u+x scripts/init_postgres.sh
-scripts/init_postgres.sh
-```
 
 Чтобы получать мгновенные уведомления об ошибках, подключите свой аккаунт [Rollbar](https://docs.rollbar.com/docs/setup)
 и добавьте следующие переменные в `.env`:
@@ -172,10 +160,19 @@ scripts/init_postgres.sh
 - `ROLLBAR_ENV=...` - development/production/...
 - `ROLLBAR_USERNAME=...`
 
-### Подтянуть изменения в репозитории и перезапустить сервисы:
-```shell
-scripts/deploy_star_burger.sh
+### Поднять контейнеры и запустить приложение:
+```sh
+scripts/first_deploy.sh
 ```
+
+Приложение контролируется systemd и запускается автоматически при перезагрузке сервера.
+Команды, которые могут пригодиться:
+```sh
+systemctl stop starburger  # остановить
+systemctl start starburger  # запустить
+systemctl status starburger  # посмотреть на статус и stdout
+```
+
 
 ## Цели проекта
 

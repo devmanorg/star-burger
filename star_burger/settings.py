@@ -85,12 +85,22 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DATABASES = {
-    'default': env.dj_db_url(
-        'DB_URL',
-        default=f'sqlite:////{os.path.join(BASE_DIR, "db.sqlite3")}'
-    )
-}
+if not env.str('POSTGRES_USER', None):
+    DEFAULT_DATABASE = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+else:
+    DEFAULT_DATABASE = {
+        'ENGINE': env.str('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': env.str('POSTGRES_DB'),
+        'USER': env.str('POSTGRES_USER'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': env.str('POSTGRES_HOST', '127.0.0.1'),
+        'PORT': env.str('POSTGRES_PORT', '5432'),
+    }
+
+DATABASES = {'default': DEFAULT_DATABASE}
 
 AUTH_PASSWORD_VALIDATORS = [
     {

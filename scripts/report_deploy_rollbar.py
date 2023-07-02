@@ -1,5 +1,3 @@
-"""Helper script to be used at the end of deploy_star_burger.sh"""
-
 import subprocess
 
 import requests
