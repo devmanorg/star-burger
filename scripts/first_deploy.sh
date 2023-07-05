@@ -12,6 +12,8 @@ if [ ! -d media ] || [ ! "$(ls -A media)" ]; then
     exit 1
 fi
 
+scripts/init_letsencrypt.sh
+
 cp systemd_units/* /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable starburger.target
