@@ -1,0 +1,7 @@
+[Unit]
+Description=Starburger Target
+Requires=starburger_containers.service starburger_cert_renewal.timer starburger_clearsessions.timer
+After=starburger_containers.service starburger_cert_renewal.timer starburger_clearsessions.timer
+
+[Install]
+WantedBy=multi-user.target

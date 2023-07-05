@@ -2,6 +2,7 @@
 Description=Starburger Docker Compose App Service
 Requires=docker.service
 After=docker.service
+PartOf=starburger.target
 
 [Service]
 Type=oneshot

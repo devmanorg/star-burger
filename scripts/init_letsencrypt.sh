@@ -11,7 +11,7 @@ domains=(starburger.mavel.cc www.starburger.mavel.cc)
 rsa_key_size=4096
 data_path="./data/certbot"
 email="starburger@mavel.cc"
-staging=1 # Set to 1 if you're testing your setup to avoid hitting request limits
+staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 nginx_container_name="starburger_nginx"
 
 if [ -d "$data_path" ]; then
@@ -81,4 +81,4 @@ docker compose run --rm --entrypoint "\
 echo
 
 echo "### Reloading nginx ..."
-docker compose exec $container_name nginx -s reload
+docker compose exec "$container_name" nginx -s reload

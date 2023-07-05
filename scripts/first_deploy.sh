@@ -12,12 +12,12 @@ if [ ! -d media ] || [ ! "$(ls -A media)" ]; then
     exit 1
 fi
 
-cp starburger.service.template /etc/systemd/system/starburger.service
+cp systemd_units/* /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable starburger
-systemctl start starburger
+systemctl enable starburger.target
+systemctl start starburger.target
 
-docker exec star-burger-django-1 python manage.py migrate
-docker exec star-burger-django-1 python manage.py loaddata data/db_dump.json
+docker exec starburger_django python manage.py migrate
+docker exec starburger_django python manage.py loaddata data/db_dump.json
 
-docker exec star-burger-django-1 python scripts/report_deploy_rollbar.py
+docker exec starburger_django python scripts/report_deploy_rollbar.py
