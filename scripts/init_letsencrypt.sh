@@ -7,10 +7,12 @@ if ! [ -x "$(command -v docker compose)" ]; then
   exit 1
 fi
 
-domains=(starburger.mavel.cc www.starburger.mavel.cc)
+source .env
+
+IFS=',' read -ra domains <<< "$CERT_DOMAINS"  # stores `CERT_DOMAINS` from .env in the array `domains`
 rsa_key_size=4096
 data_path="./data/certbot"
-email="starburger@mavel.cc"
+email="$EMAIL"
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then

@@ -17,7 +17,6 @@ services:
     command: gunicorn -b 0.0.0.0:8081 --workers 3 star_burger.wsgi:application
     environment:
       - POSTGRES_HOST=db
-      - ALLOWED_HOSTS=127.0.0.1,starburger.mavel.cc
     volumes:
       - .:/app
       - frontend:/app/frontend
