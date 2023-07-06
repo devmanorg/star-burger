@@ -147,31 +147,44 @@ Parcel будет следить за файлами в каталоге `bundle
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
-- `POSTGRES_USER=...`
-- `POSTGRES_PASSWORD=...`
-- `POSTGRES_DB=...`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_DB`
+
+Для SSL-сертификата:
+- `EMAIL`
+- `CERT_DOMAINS` - список доменов в формате `example.org,www.example.org`
 
 Убедиться, что в каталоге `star-burger/data` лежат данные, которые нужно загрузить в БД.
 Убедиться, что на сервере установлен Docker.
 
+Заменить домены в `nginx.conf` на ваши собственные.
+
 Чтобы получать мгновенные уведомления об ошибках, подключите свой аккаунт [Rollbar](https://docs.rollbar.com/docs/setup)
 и добавьте следующие переменные в `.env`:
-- `ROLLBAR_TOKEN=...`
-- `ROLLBAR_ENV=...` - development/production/...
-- `ROLLBAR_USERNAME=...`
+- `ROLLBAR_TOKEN`
+- `ROLLBAR_ENV` - `development`/`production`/...
+- `ROLLBAR_USERNAME`
 
-### Поднять контейнеры и запустить приложение:
+### Поднять контейнеры, получить сертификат SSL и запустить приложение:
+
 ```sh
 scripts/first_deploy.sh
 ```
 
-Приложение контролируется systemd и запускается автоматически при перезагрузке сервера.
+Приложение контролируется таргетом systemd и запускается автоматически при перезагрузке сервера.
+В таргет включены следующие юниты:
+- starburger_containers.service - запускает и останавливает контейнеры через docker compose
+- starburger_cert_renewal.timer - обновляет сертификат SSL и перезагружает nginx
+- starburger_clearsessions.timer - удаляет устаревшие сессии в Django
+
 Команды, которые могут пригодиться:
 ```sh
-systemctl stop starburger  # остановить
-systemctl start starburger  # запустить
-systemctl status starburger  # посмотреть на статус и stdout
+systemctl stop starburger.target  # остановить
+systemctl start starburger.target  # запустить
+docker compose logs  # посмотреть на stdout контейнеров
 ```
+
 
 ### Подтянуть изменения из репозитория и перезапустить сервисы:
 ```sh
