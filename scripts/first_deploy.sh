@@ -23,3 +23,5 @@ docker exec starburger_django python manage.py migrate
 docker exec starburger_django python manage.py loaddata data/db_dump.json
 
 docker exec starburger_django python scripts/report_deploy_rollbar.py
+
+echo "Deploy successful."
