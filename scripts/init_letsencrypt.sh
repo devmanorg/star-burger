@@ -20,6 +20,8 @@ if [ -d "$data_path" ]; then
   fi
 fi
 
+rm -r "$data_path"
+
 
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
