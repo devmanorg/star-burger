@@ -12,7 +12,6 @@ rsa_key_size=4096
 data_path="./data/certbot"
 email="starburger@mavel.cc"
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
-nginx_container_name="starburger_nginx"
 
 if [ -d "$data_path" ]; then
   read -p "Existing data found for $domains. Continue and replace existing certificate? (y/N) " decision
@@ -81,4 +80,4 @@ docker compose run --rm --entrypoint "\
 echo
 
 echo "### Reloading nginx ..."
-docker compose exec "$nginx_container_name" nginx -s reload
+docker compose exec nginx nginx -s reload
