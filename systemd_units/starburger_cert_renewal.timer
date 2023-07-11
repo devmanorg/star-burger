@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly Starburger Certbot Renewal
+PartOf=starburger.target
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

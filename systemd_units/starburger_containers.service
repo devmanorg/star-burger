@@ -1,0 +1,16 @@
+[Unit]
+Description=Starburger Docker Compose App Service
+Requires=docker.service
+After=docker.service
+PartOf=starburger.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/star-burger/
+ExecStart=docker compose up -d
+ExecStop=docker compose down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

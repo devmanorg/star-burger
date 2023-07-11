@@ -1,0 +1,6 @@
+[Unit]
+Description=Starburger Django Clear Sessions
+
+[Service]
+WorkingDirectory=/opt/star-burger
+ExecStart=/usr/bin/docker exec starburger_django python manage.py clearsessions

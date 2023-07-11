@@ -1,12 +1,25 @@
+from django.conf import settings
 from django.contrib import admin
+from django.forms import ModelForm
+from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
 from .models import RestaurantMenuItem
+from .models import Order
+from .models import ProductOrder
+from places.models import Location
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ['address', 'latitude', 'longitude', 'updated_at']
+    readonly_fields = ['updated_at']
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -29,6 +42,10 @@ class RestaurantAdmin(admin.ModelAdmin):
     inlines = [
         RestaurantMenuItemInline
     ]
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        Location.update_by_address(obj.address)
 
 
 @admin.register(Product)
@@ -104,3 +121,43 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(ProductCategory)
 class ProductAdmin(admin.ModelAdmin):
     pass
+
+
+class ProductOrderInlineForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['product_price'].label = 'Цена (оставьте поле пустым для стандартной цены)'
+
+
+class ProductOrderInline(admin.TabularInline):
+    model = ProductOrder
+    fields = ('product', 'product_price', 'quantity')
+    form = ProductOrderInlineForm
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    inlines = [ProductOrderInline]
+    list_display = ('firstname', 'lastname', 'phonenumber', 'created_at')
+    readonly_fields = ('created_at',)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        Location.update_by_address(obj.address)
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for instance in instances:
+            if instance.product_price is None:
+                instance.product_price = instance.product.price
+            instance.save()
+        formset.save_m2m()
+
+    def response_change(self, request, obj):
+        response = super().response_change(request, obj)
+        if url_has_allowed_host_and_scheme(request.GET.get('next'), settings.ALLOWED_HOSTS):
+            return HttpResponseRedirect(request.GET['next'])
+        else:
+            return response

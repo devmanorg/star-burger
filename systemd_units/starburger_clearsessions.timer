@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly Django Clear Sessions for Starburger
+PartOf=starburger.target
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

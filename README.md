@@ -1,4 +1,4 @@
-# Сайт доставки еды Star Burger
+# Сайт доставки еды [Star Burger](http://starburger.mavel.cc/)
 
 Это сайт сети ресторанов Star Burger. Здесь можно заказать превосходные бургеры с доставкой на дом.
 
@@ -37,7 +37,7 @@ python --version
 ```
 **Важно!** Версия Python должна быть не ниже 3.6.
 
-Возможно, вместо команды `python` здесь и в остальных инструкциях этого README придётся использовать `python3`. Зависит это от операционной системы и от того, установлен ли у вас Python старой второй версии. 
+Возможно, вместо команды `python` здесь и в остальных инструкциях этого README придётся использовать `python3`. Зависит это от операционной системы и от того, установлен ли у вас Python старой второй версии.
 
 В каталоге проекта создайте виртуальное окружение:
 ```sh
@@ -54,10 +54,14 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-Определите переменную окружения `SECRET_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+Определите переменную окружения `SECRET_KEY`. Создайте файл `.env` в каталоге `star_burger/` и положите туда такой код:
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 ```
+
+Получите API-ключ для
+[Яндекс-геокодера](https://developer.tech.yandex.ru/services/) (подробнее [здесь](https://dvmn.org/encyclopedia/api-docs/yandex-geocoder-api/)).
+Положите ключ в переменную `YANDEX_GEO_KEY` в файле `.env`.
 
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
 
@@ -136,17 +140,56 @@ Parcel будет следить за файлами в каталоге `bundle
 
 ## Как запустить prod-версию сайта
 
-Собрать фронтенд:
+### Настроить бэкенд:
 
-```sh
-./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
-```
-
-Настроить бэкенд: создать файл `.env` в каталоге `star_burger/` со следующими настройками:
+Создать файл `.env` в корневом каталоге проекта со следующими настройками:
 
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_DB`
+
+Для SSL-сертификата:
+- `EMAIL`
+- `CERT_DOMAINS` - список доменов в формате `example.org,www.example.org`
+
+Убедиться, что в каталоге `star-burger/data` лежат данные, которые нужно загрузить в БД.
+Убедиться, что на сервере установлен Docker.
+
+Заменить домены в `nginx.conf` на ваши собственные.
+
+Чтобы получать мгновенные уведомления об ошибках, подключите свой аккаунт [Rollbar](https://docs.rollbar.com/docs/setup)
+и добавьте следующие переменные в `.env`:
+- `ROLLBAR_TOKEN`
+- `ROLLBAR_ENV` - `development`/`production`/...
+- `ROLLBAR_USERNAME`
+
+### Поднять контейнеры, получить сертификат SSL и запустить приложение:
+
+```sh
+scripts/first_deploy.sh
+```
+
+Приложение контролируется таргетом systemd и запускается автоматически при перезагрузке сервера.
+В таргет включены следующие юниты:
+- starburger_containers.service - запускает и останавливает контейнеры через docker compose
+- starburger_cert_renewal.timer - обновляет сертификат SSL и перезагружает nginx
+- starburger_clearsessions.timer - удаляет устаревшие сессии в Django
+
+Команды, которые могут пригодиться:
+```sh
+systemctl stop starburger.target  # остановить
+systemctl start starburger.target  # запустить
+docker compose logs  # посмотреть на stdout контейнеров
+```
+
+
+### Подтянуть изменения из репозитория и перезапустить сервисы:
+```sh
+scripts/deploy.sh
+```
 
 ## Цели проекта
 

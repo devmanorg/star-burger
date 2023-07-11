@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  db:
+    container_name: starburger_db
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  django:
+    container_name: starburger_django
+    build: .
+    command: gunicorn -b 0.0.0.0:8081 --workers 3 star_burger.wsgi:application
+    environment:
+      - POSTGRES_HOST=db
+    volumes:
+      - .:/app
+      - frontend:/app/frontend
+      - media:/app/media
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+
+  nginx:
+    container_name: starburger_nginx
+    image: nginx:1.25
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - frontend:/frontend
+      - media:/media
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - django
+
+  certbot:
+    container_name: starburger_certbot
+    image: certbot/certbot:v2.6.0
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    depends_on:
+      - nginx
+
+volumes:
+  postgres:
+  frontend:
+  media:

@@ -1,4 +1,5 @@
 {% extends 'base_restaurateur_page.html' %}
+{% load humanize %}
 
 {% block title %}Необработанные заказы | Star Burger{% endblock %}
 
@@ -14,17 +15,50 @@
    <table class="table table-responsive">
     <tr>
       <th>ID заказа</th>
+      <th>Статус</th>
+      <th>Время создания</th>
+      <th>Стоимость</th>
+      <th>Способ оплаты</th>
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
+      <th>Комментарии</th>
+      <th>Рестораны</th>
+      <th>Ссылка на админку</th>
     </tr>
 
-    {% for item in order_items %}
+    {% for order in orders %}
       <tr>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
+        <td>{{ order.id }}</td>
+        <td>{{ order.get_status_display }}</td>
+        <td>{{ order.created_at|naturaltime }}</td>
+        <td>{{ order.total|floatformat:"2g" }} ₽ </td>
+        <td>{{ order.get_payment_method_display }}</td>
+        <td>{{ order.firstname }} {{ order.lastname }}</td>
+        <td>{{ order.phonenumber }}</td>
+        <td>{{ order.address }}</td>
+        <td>{{ order.comment }}</td>
+        <td>
+          {% if order.status == order.Status.NEW %}
+            <details>
+              <summary>Могут приготовить:</summary>
+              {% for rest in order.available_restaurants %}
+                <li>{{ rest }}:
+                {% if rest.distance %}
+                  {{ rest.distance|floatformat:'2g' }} км</li>
+                {% else %}
+                  Расстояние недоступно
+                {% endif %}
+              {% endfor %}
+            </details>
+          {% else %}
+            Передан в ресторан:
+            {{ order.assigned_restaurant }}
+          {% endif %}
+        </td>
+        <td><a href="{% url "admin:foodcartapp_order_change" order.id %}?next={{ request.get_full_path|urlencode }}">
+          Редактировать
+        </a></td>
       </tr>
     {% endfor %}
    </table>

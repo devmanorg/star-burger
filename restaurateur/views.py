@@ -1,14 +1,16 @@
+from copy import copy
+
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from geopy import distance
 
-
-from foodcartapp.models import Product, Restaurant
+from foodcartapp.models import Product, Restaurant, Order, ProductOrder, RestaurantMenuItem
+from places.models import Location
 
 
 class Login(forms.Form):
@@ -92,6 +94,38 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    active_orders = Order.objects.active().with_totals()
+    active_product_orders = ProductOrder.objects.in_orders(active_orders)
+    ordered_products = set(product_order.product for product_order in active_product_orders)
+    ordered_menu_items = RestaurantMenuItem.objects.include_products(ordered_products)
+
+    addresses = [order.address for order in active_orders] + [pr.restaurant.address for pr in ordered_menu_items]
+    locations = Location.objects.filter(address__in=addresses)
+    locations_by_address = {location.address: location for location in locations}
+
+    for menu_item in ordered_menu_items:
+        menu_item.restaurant.location = locations_by_address.get(menu_item.restaurant.address)
+
+    for order in active_orders:
+        order.location = locations_by_address.get(order.address)
+        required_product_ids = [po.product.id for po in active_product_orders if po.order == order]
+        order.available_restaurants = {
+            copy(menu_item.restaurant) for menu_item in ordered_menu_items
+            if menu_item.product.id in required_product_ids
+        }
+        for restaurant in order.available_restaurants:
+            try:
+                restaurant.distance = distance.distance(
+                    (order.location.latitude, order.location.longitude),
+                    (restaurant.location.latitude, restaurant.location.longitude),
+                ).km
+            except AttributeError:
+                restaurant.distance = None
+        order.available_restaurants = sorted(
+            order.available_restaurants,
+            key=lambda rest: rest.distance or 0,
+        )
+
     return render(request, template_name='order_items.html', context={
-        # TODO заглушка для нереализованного функционала
+        'orders': active_orders,
     })

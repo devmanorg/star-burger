@@ -1,0 +1,7 @@
+[Unit]
+Description=Starburger Certbot Renewal
+
+[Service]
+WorkingDirectory=/opt/star-burger
+ExecStart=/usr/bin/docker exec starburger_certbot certbot renew --force-renewal
+ExecStartPost=/usr/bin/docker exec starburger_nginx nginx -s reload

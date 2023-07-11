@@ -13,20 +13,24 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = env.bool('DEBUG', True)
+DEBUG = env.bool('DEBUG', False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
     'restaurateur.apps.RestaurateurConfig',
+    'places.apps.PlacesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'debug_toolbar',
+    'phonenumber_field',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -38,6 +42,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -80,11 +85,22 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-    )
-}
+if not env.str('POSTGRES_USER', None):
+    DEFAULT_DATABASE = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+else:
+    DEFAULT_DATABASE = {
+        'ENGINE': env.str('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': env.str('POSTGRES_DB'),
+        'USER': env.str('POSTGRES_USER'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': env.str('POSTGRES_HOST', '127.0.0.1'),
+        'PORT': env.str('POSTGRES_PORT', '5432'),
+    }
+
+DATABASES = {'default': DEFAULT_DATABASE}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -122,3 +138,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
     os.path.join(BASE_DIR, "bundles"),
 ]
+
+PHONENUMBER_DEFAULT_REGION = 'RU'
+
+YANDEX_GEO_KEY = env.str('YANDEX_GEO_KEY')
+
+ROLLBAR = {
+    'access_token': env.str('ROLLBAR_TOKEN', None),
+    'environment': env.str('ROLLBAR_ENV', 'development'),
+    'root': BASE_DIR,
+}
