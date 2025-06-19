@@ -126,7 +126,6 @@ class RestaurantMenuItem(models.Model):
 
 
 class Order(models.Model):
-    
     firstname = models.CharField(
         verbose_name='Имя', 
         max_length=15, 
