@@ -1,10 +1,12 @@
-import json
-
 from django.http import JsonResponse
 from django.templatetags.static import static
 
+from foodcartapp.models import Product, Order, OrderItem
 
-from .models import Product, Order, OrderItem
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from foodcartapp.serializer import OrderSerializer
 
 
 def banners_list_api(request):
@@ -59,26 +61,23 @@ def product_list_api(request):
     })
 
 
+@api_view(['POST'])
 def register_order(request):
-    try:
-        data = json.loads(request.body.decode())
-    except ValueError:
-        return JsonResponse({'error': 'Неверный формат данных'})
-        
+    order_serializer = OrderSerializer(data=request.data)
+    order_serializer.is_valid(raise_exception=True)
+
     order = Order.objects.create(
-        firstname=data['firstname'],
-        lastname=data['lastname'],
-        phonenumber=data['phonenumber'],
-        address=data['address'],
+        firstname=order_serializer.validated_data['firstname'],
+        lastname=order_serializer.validated_data['lastname'],
+        address=order_serializer.validated_data['address'],
+        phonenumber=order_serializer.validated_data['phonenumber'],
     )
 
-    for item in data['products']:
-        product = Product.objects.get(id=item['product'])
+    for item in order_serializer.validated_data['products']:
         OrderItem.objects.create(
-            product=product,
+            product=item['product'],
             order=order,
             quantity=item['quantity']
         )
 
-    return JsonResponse({})
-
+    return Response(order_serializer.data)
