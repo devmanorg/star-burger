@@ -1,5 +1,7 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, MaxLengthValidator, MinLengthValidator
+
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
@@ -121,3 +123,64 @@ class RestaurantMenuItem(models.Model):
 
     def __str__(self):
         return f"{self.restaurant.name} - {self.product.name}"
+
+
+class Order(models.Model):
+    
+    firstname = models.CharField(
+        verbose_name='Имя', 
+        max_length=15, 
+        validators=[MinLengthValidator(2), MaxLengthValidator(15)],
+        null=False,
+    )
+    lastname = models.CharField(
+        verbose_name='Фамилия', 
+        max_length=15, 
+        validators=[MinLengthValidator(3), MaxLengthValidator(15)],
+        null=False,
+    )
+    phonenumber = PhoneNumberField(
+        verbose_name='Телефон', 
+        region='RU',
+        null=False,
+    )
+    address = models.CharField(
+        verbose_name='Адрес доставки', 
+        max_length=45, 
+        validators=[MinLengthValidator(4), MaxLengthValidator(45)],
+        null=False,
+    )
+    
+    class Meta:
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+        
+    def __str__(self):
+        return f"{self.firstname} {self.lastname}, {self.address}"
+    
+    
+class OrderItem(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='product_items',
+        verbose_name='Товар',
+    )
+    order = models.ForeignKey(
+        Order, 
+        on_delete=models.CASCADE, 
+        related_name='items', 
+        verbose_name='заказ', 
+        null=True,
+    )
+    quantity = models.PositiveIntegerField(
+        verbose_name='Количество',
+        validators=[MinValueValidator(1), MaxValueValidator(99)]
+    )
+    
+    class Meta:
+        verbose_name = 'элемент заказа'
+        verbose_name_plural = 'элементы заказа'
+
+    def __str__(self):
+        return f"{self.product.name} {self.order.firstname} {self.order.lastname} "
