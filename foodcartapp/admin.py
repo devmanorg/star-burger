@@ -120,7 +120,23 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('firstname', 'lastname', 'address')
+    list_display = (
+        'get_order_number',
+        'firstname',
+        'lastname',
+        'address',
+    )
+    fields = (
+        'status',
+        'firstname',
+        'lastname',
+        'address',
+        'phonenumber',
+        'comment',
+        'created_at',
+        'called_at',
+        'delivered_at',
+    )
     inlines = [OrderItemInline]
 
     def save_formset(self, request, form, formset, change):
@@ -138,3 +154,7 @@ class OrderAdmin(admin.ModelAdmin):
         if next_url and url_has_allowed_host_and_scheme(next_url, settings.ALLOWED_HOSTS):
             return HttpResponseRedirect(next_url)
         return super().response_change(request, obj)
+
+    def get_order_number(self, obj):
+        return f'Заказ - {obj.id}'
+    get_order_number.short_description = 'Заказ'

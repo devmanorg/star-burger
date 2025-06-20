@@ -1,5 +1,11 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator, MaxLengthValidator, MinLengthValidator
+from django.core.validators import (
+    MinValueValidator,
+    MaxValueValidator,
+    MaxLengthValidator,
+    MinLengthValidator
+)
+from django.utils.timezone import now
 
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -163,18 +169,35 @@ class Order(models.Model):
     )
     comment = models.TextField(
         verbose_name='Комментарий', 
-        max_length=100, 
+        max_length=100,
+        null=True, 
         blank=True
+    )
+    created_at = models.DateTimeField(
+        verbose_name="Создание заказа",
+        default=now,
+        blank=True,
+        null=True,
+    )
+    called_at = models.DateTimeField(
+        verbose_name="Время звонка",
+        blank=True, 
+        null=True
+    )
+    delivered_at = models.DateTimeField(
+        verbose_name="Время доставки",
+        blank=True,
+        null=True
     )
 
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
-        
+
     def __str__(self):
         return f"{self.firstname} {self.lastname}, {self.address}"
-    
-    
+
+
 class OrderItem(models.Model):
     product = models.ForeignKey(
         Product,
