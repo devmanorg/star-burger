@@ -176,7 +176,15 @@ class OrderItem(models.Model):
         verbose_name='Количество',
         validators=[MinValueValidator(1), MaxValueValidator(99)]
     )
-    
+    price_at_order = models.DecimalField(
+        max_digits=7,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        verbose_name="Цена",
+        null=True,
+        blank=True
+    )
+
     class Meta:
         verbose_name = 'элемент заказа'
         verbose_name_plural = 'элементы заказа'

@@ -114,6 +114,14 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('firstname', 'lastname', 'address')
-    inlines = [
-        OrderItemInline
-    ]
+    inlines = [OrderItemInline]
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+
+        for instance in instances:
+            if not instance.price_at_order:
+                instance.price_at_order = instance.product.price*instance.quantity
+            instance.save()
+
+        formset.save_m2m()
