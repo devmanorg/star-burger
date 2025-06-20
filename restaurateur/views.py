@@ -93,7 +93,7 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.annotate(price=Sum(F('items__quantity') * F('items__product__price')))
+    order_items = Order.objects.annotate(price=Sum(F('items__quantity') * F('items__product__price'))).filter(status__in=['pending', 'in_progress', 'delivery'])
 
     return render(
         request,
