@@ -139,7 +139,12 @@ class Order(models.Model):
         ('completed', 'Выполнен'),
         ('canceled', 'Отменен'),
     )
+    PAYMENT_TYPE = (
+        ('cash', 'Наличностью'),
+        ('e_pay', 'Электронно'),
+    )
     status = models.CharField(
+        verbose_name='Статус заказа', 
         max_length=20, 
         choices=ORDER_STATUS, 
         default='pending'
@@ -188,6 +193,12 @@ class Order(models.Model):
         verbose_name="Время доставки",
         blank=True,
         null=True
+    )
+    payment = models.CharField(
+        verbose_name='Тип оплаты',
+        max_length=20,
+        choices=PAYMENT_TYPE,
+        default='cash'
     )
 
     class Meta:
