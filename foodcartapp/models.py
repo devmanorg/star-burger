@@ -161,7 +161,12 @@ class Order(models.Model):
         validators=[MinLengthValidator(4), MaxLengthValidator(45)],
         null=False,
     )
-    
+    comment = models.TextField(
+        verbose_name='Комментарий', 
+        max_length=100, 
+        blank=True
+    )
+
     class Meta:
         verbose_name = 'заказ'
         verbose_name_plural = 'заказы'
