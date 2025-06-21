@@ -137,6 +137,7 @@ class OrderAdmin(admin.ModelAdmin):
         'created_at',
         'called_at',
         'delivered_at',
+        'restaurant_prepare'
     )
     inlines = [OrderItemInline]
 

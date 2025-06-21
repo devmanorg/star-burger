@@ -93,7 +93,22 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.annotate(price=Sum(F('items__quantity') * F('items__product__price'))).filter(status__in=['pending', 'in_progress', 'delivery'])
+    order_items = (
+        Order.objects
+        .select_related('restaurant_prepare')
+        .prefetch_related('items__product')
+        .annotate(price=Sum(F('items__quantity') * F('items__product__price')))
+        .filter(status__in=['pending', 'in_progress', 'delivery'])
+    )
+
+    for order in order_items:
+        products_in_order = set(item.product for item in order.items.all())
+        possible_restaurants = []
+        for restaurant in Restaurant.objects.all():
+            restaurant_products = set(menu_item.product for menu_item in restaurant.menu_items.all())
+            if products_in_order <= restaurant_products:
+                possible_restaurants.append(restaurant)
+        order.possible_restaurants = possible_restaurants
 
     return render(
         request,

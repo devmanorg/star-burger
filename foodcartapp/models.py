@@ -176,7 +176,8 @@ class Order(models.Model):
         verbose_name='Комментарий', 
         max_length=100,
         null=True, 
-        blank=True
+        blank=True,
+        default=''
     )
     created_at = models.DateTimeField(
         verbose_name="Создание заказа",
@@ -199,6 +200,14 @@ class Order(models.Model):
         max_length=20,
         choices=PAYMENT_TYPE,
         default='cash'
+    )
+    restaurant_prepare = models.ForeignKey(
+        Restaurant,
+        verbose_name='Ресторан готовит',
+        related_name='cooking',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE
     )
 
     class Meta:
@@ -242,3 +251,4 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} {self.order.firstname} {self.order.lastname} "
+    
