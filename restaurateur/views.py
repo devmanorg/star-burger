@@ -2,14 +2,14 @@ from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
-
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-
 from django.db.models import F, Sum
 
+
 from foodcartapp.models import Product, Restaurant, Order
+from restaurateur.utils import fetch_order_and_restaurant_coordinates, get_distance
 
 
 class Login(forms.Form):
@@ -100,15 +100,19 @@ def view_orders(request):
         .annotate(price=Sum(F('items__quantity') * F('items__product__price')))
         .filter(status__in=['pending', 'in_progress', 'delivery'])
     )
+    restaurants = Restaurant.objects.all()
 
     for order in order_items:
         products_in_order = set(item.product for item in order.items.all())
         possible_restaurants = []
-        for restaurant in Restaurant.objects.all():
+        for restaurant in restaurants:
             restaurant_products = set(menu_item.product for menu_item in restaurant.menu_items.all())
             if products_in_order <= restaurant_products:
                 possible_restaurants.append(restaurant)
+
         order.possible_restaurants = possible_restaurants
+        order.coordinate, restaurant_coordinates = fetch_order_and_restaurant_coordinates(order.address, order.possible_restaurants)
+        order.restaurants_with_distance = get_distance(restaurant_coordinates, order.coordinate, order.possible_restaurants)
 
     return render(
         request,
