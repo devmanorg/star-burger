@@ -114,8 +114,17 @@ def view_orders(request):
                 possible_restaurants.append(restaurant)
 
         order.possible_restaurants = possible_restaurants
-        order.coordinate, restaurant_coordinates = fetch_order_and_restaurant_coordinates(order.address, order.possible_restaurants)
-        order.restaurants_with_distance = get_distance(restaurant_coordinates, order.coordinate, order.possible_restaurants)
+        order.coordinate, restaurant_coordinates = (
+            fetch_order_and_restaurant_coordinates(
+                order.address,
+                order.possible_restaurants)
+        )
+        order.restaurants_with_distance = (
+            get_distance(
+                restaurant_coordinates,
+                order.coordinate,
+                order.possible_restaurants)
+        )
 
     return render(
         request,
