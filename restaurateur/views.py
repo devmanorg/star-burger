@@ -100,14 +100,17 @@ def view_orders(request):
         .annotate(price=Sum(F('items__quantity') * F('items__product__price')))
         .filter(status__in=['pending', 'in_progress', 'delivery'])
     )
-    restaurants = Restaurant.objects.all()
+    restaurants = Restaurant.objects.prefetch_related('menu_items__product').all()
 
     for order in order_items:
         products_in_order = set(item.product for item in order.items.all())
         possible_restaurants = []
         for restaurant in restaurants:
-            restaurant_products = set(menu_item.product for menu_item in restaurant.menu_items.all())
-            if products_in_order <= restaurant_products:
+            restaurant_products = {
+                restaurant.id: set(menu_item.product for menu_item in restaurant.menu_items.all())
+                for restaurant in restaurants
+            }
+            if products_in_order <= restaurant_products[restaurant.id]:
                 possible_restaurants.append(restaurant)
 
         order.possible_restaurants = possible_restaurants

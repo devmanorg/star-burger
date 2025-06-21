@@ -5,8 +5,19 @@ from django.conf import settings
 from geopy import distance
 from requests.exceptions import RequestException
 
+from locationapp.models import Location
+from django.utils import timezone
+from datetime import timedelta
+
 
 def fetch_coordinates(address):
+    try:
+        location = Location.objects.get(location_address=address)
+        if timezone.now().date() - location.created_at < timedelta(days=7):
+            return (str(location.longitude), str(location.latitude))
+    except Exception:
+        location = None
+
     base_url = "https://geocode-maps.yandex.ru/1.x"
     response = requests.get(base_url, params={
         "geocode": address,
@@ -21,6 +32,14 @@ def fetch_coordinates(address):
 
     most_relevant = found_places[0]
     lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+
+    if location:
+        location.longitude = lon
+        location.latitude = lat
+        location.save()
+    else:
+        Location.objects.create(location_address=address, longitude=lon, latitude=lat)
+
     return lon, lat
 
 
@@ -29,11 +48,15 @@ def fetch_order_and_restaurant_coordinates(order_address, restaurant_address):
     restaurant_coordinates = []
     try:
         if order_address:
-            order_coordinate = tuple(reversed(fetch_coordinates(order_address)))
-        for restaurant in restaurant_address:
-            restaurant_coordinates.append(tuple(reversed(fetch_coordinates(restaurant.address))))
-    except RequestException as req_err:
-        print(f"Произошла ошибка при запросе: {req_err}")
+            order_coordinate = fetch_coordinates(order_address)
+    except RequestException:
+        order_coordinate = None
+
+    for restaurant in restaurant_address:
+        try:
+            restaurant_coordinates.append(fetch_coordinates(restaurant.address))
+        except RequestException:
+            continue
 
     return order_coordinate, restaurant_coordinates
 
@@ -41,7 +64,7 @@ def fetch_order_and_restaurant_coordinates(order_address, restaurant_address):
 def get_distance(restaurant_coordinates, order_coordinate, order_possible_restaurants):
     distances = []
     for coord in restaurant_coordinates:
-        distances.append(distance.distance(order_coordinate, coord).km)
+        distances.append(distance.distance(tuple(reversed(order_coordinate)), tuple(reversed(coord))).km)
 
     restaurants_with_distance = list(zip(order_possible_restaurants, distances))
     restaurants_with_distance.sort(key=lambda x: x[1])
