@@ -153,31 +153,25 @@ class Order(models.Model):
         verbose_name='Имя', 
         max_length=15, 
         validators=[MinLengthValidator(2), MaxLengthValidator(15)],
-        null=False,
     )
     lastname = models.CharField(
         verbose_name='Фамилия', 
         max_length=15, 
         validators=[MinLengthValidator(3), MaxLengthValidator(15)],
-        null=False,
     )
     phonenumber = PhoneNumberField(
         verbose_name='Телефон', 
         region='RU',
-        null=False,
     )
     address = models.CharField(
         verbose_name='Адрес доставки', 
         max_length=45, 
         validators=[MinLengthValidator(4), MaxLengthValidator(45)],
-        null=False,
     )
     comment = models.TextField(
         verbose_name='Комментарий', 
         max_length=100,
-        null=True, 
         blank=True,
-        default=''
     )
     created_at = models.DateTimeField(
         verbose_name="Создание заказа",
@@ -230,7 +224,6 @@ class OrderItem(models.Model):
         on_delete=models.CASCADE, 
         related_name='items', 
         verbose_name='заказ', 
-        null=True,
     )
     quantity = models.PositiveIntegerField(
         verbose_name='Количество',
@@ -241,8 +234,6 @@ class OrderItem(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)],
         verbose_name="Цена",
-        null=True,
-        blank=True
     )
 
     class Meta:
