@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.db.models import F, Sum
 
-
+from locationapp.models import Location
 from foodcartapp.models import Product, Restaurant, Order
 from restaurateur.utils import fetch_order_and_restaurant_coordinates, get_distance
 
@@ -101,30 +101,53 @@ def view_orders(request):
         .filter(status__in=['pending', 'in_progress', 'delivery'])
     )
     restaurants = Restaurant.objects.prefetch_related('menu_items__product')
+    restaurant_products = {
+        restaurant.id: set(menu_item.product for menu_item in restaurant.menu_items.all())
+        for restaurant in restaurants
+    }
+    order_addresses = set(order.address for order in order_items)
+    restaurant_addresses = set(restaurant.address for restaurant in restaurants)
+    all_addresses = order_addresses.union(restaurant_addresses)
+    locations = {loc.location_address: loc for loc in Location.objects.filter(location_address__in=all_addresses)}
 
     for order in order_items:
         products_in_order = set(item.product for item in order.items.all())
-        possible_restaurants = []
-        for restaurant in restaurants:
-            restaurant_products = {
-                restaurant.id: set(menu_item.product for menu_item in restaurant.menu_items.all())
-                for restaurant in restaurants
-            }
-            if products_in_order <= restaurant_products[restaurant.id]:
-                possible_restaurants.append(restaurant)
+        possible_restaurants = [
+            restaurant for restaurant in restaurants
+            if products_in_order <= restaurant_products[restaurant.id]
+        ]
 
-        order.possible_restaurants = possible_restaurants
-        order.coordinate, restaurant_coordinates = (
-            fetch_order_and_restaurant_coordinates(
-                order.address,
-                order.possible_restaurants)
+        order_coordinate = (
+            (locations.get(order.address).longitude,
+             locations.get(order.address).latitude)
+            if locations.get(order.address) else None
         )
-        order.restaurants_with_distance = (
-            get_distance(
-                restaurant_coordinates,
-                order.coordinate,
-                order.possible_restaurants)
-        )
+
+        restaurants_cordinate = [
+            (locations.get(restaurant.address).longitude,
+             locations.get(restaurant.address).latitude
+             ) for restaurant in possible_restaurants
+        ]
+        if order_coordinate and restaurants_cordinate:
+            order.restaurants_with_distance = (
+                get_distance(
+                    restaurants_cordinate,
+                    order_coordinate,
+                    possible_restaurants)
+            )
+        else:
+            order.coordinate, restaurant_coordinates = (
+                fetch_order_and_restaurant_coordinates(
+                    order_coordinate,
+                    possible_restaurants)
+            )
+            order.restaurants_with_distance = (
+                get_distance(
+                    restaurant_coordinates,
+                    order_coordinate,
+                    possible_restaurants)
+            )
+        order.coord_error = order_coordinate is None
 
     return render(
         request,

@@ -36,6 +36,10 @@
         <td>{{ order.address }}</td>
         <td>{{ order.comment }}</td>
         <td>
+          {% if order.coord_error %}
+            <p>Ошибка получения координат</p>
+          {% else %}
+          
           {% if order.restaurant_prepare %}
             Готовит {{ order.restaurant_prepare.name }}
           {% else %}
@@ -49,6 +53,7 @@
                 {% endfor %}
               </ul>
             </details>
+          {% endif %}
           {% endif %}
         </td>
         <td><a href="{% url 'admin:foodcartapp_order_change' object_id=order.id %}?next={{ request.path|urlencode }}">Редактировать</a></td>

@@ -1,6 +1,8 @@
 from rest_framework.serializers import ModelSerializer
 from foodcartapp.models import Order, OrderItem
 
+from restaurateur.utils import fetch_coordinates
+
 
 class OrderItemSerializer(ModelSerializer):
     class Meta:
@@ -33,4 +35,5 @@ class OrderSerializer(ModelSerializer):
             ) for item in products_items
         ]
         OrderItem.objects.bulk_create(order_items)
+        fetch_coordinates(order.address)
         return order

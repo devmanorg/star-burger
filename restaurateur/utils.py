@@ -14,8 +14,8 @@ def fetch_coordinates(address):
     try:
         location = Location.objects.get(location_address=address)
         if timezone.now().date() - location.created_at < timedelta(days=7):
-            return (str(location.longitude), str(location.latitude))
-    except Exception:
+            return location.longitude, location.latitude
+    except Location.DoesNotExist:
         location = None
 
     base_url = "https://geocode-maps.yandex.ru/1.x"
@@ -36,6 +36,7 @@ def fetch_coordinates(address):
     if location:
         location.longitude = lon
         location.latitude = lat
+        location.created_at = timezone.now().date() 
         location.save()
     else:
         Location.objects.create(location_address=address, longitude=lon, latitude=lat)
@@ -61,9 +62,12 @@ def fetch_order_and_restaurant_coordinates(order_address, restaurant_address):
     return order_coordinate, restaurant_coordinates
 
 
-def get_distance(restaurant_coordinates, order_coordinate, order_possible_restaurants):
+def get_distance(restaurants_cordinate, order_coordinate, order_possible_restaurants):
+    if not order_coordinate:
+        return []
+
     distances = []
-    for coord in restaurant_coordinates:
+    for coord in restaurants_cordinate:
         distances.append(distance.distance(tuple(reversed(order_coordinate)), tuple(reversed(coord))).km)
 
     restaurants_with_distance = list(zip(order_possible_restaurants, distances))
