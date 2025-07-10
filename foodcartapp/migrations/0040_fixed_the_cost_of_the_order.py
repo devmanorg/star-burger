@@ -3,7 +3,7 @@
 from django.db import migrations
 
 
-def fill_price_at_order(apps):
+def fill_price_at_order(apps, schema_editor):
     OrderItem = apps.get_model('foodcartapp', 'OrderItem')
     items = OrderItem.objects.select_related('product').filter(price_at_order__isnull=True)
 

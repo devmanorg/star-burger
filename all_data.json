@@ -1,0 +1,432 @@
+[
+{
+  "model": "foodcartapp.restaurant",
+  "pk": 1,
+  "fields": {
+    "name": "Star Burger Арбат",
+    "address": "Москва, ул. Новый Арбат, 15",
+    "contact_phone": "+7 (967) 157-44-13"
+  }
+},
+{
+  "model": "foodcartapp.restaurant",
+  "pk": 2,
+  "fields": {
+    "name": "Star Burger Цветной",
+    "address": "Москва, Цветной бульвар, 11с2",
+    "contact_phone": "+7 (929) 949-55-36"
+  }
+},
+{
+  "model": "foodcartapp.restaurant",
+  "pk": 3,
+  "fields": {
+    "name": "Star Burger Европейский",
+    "address": "Москва, пл. Киевского Вокзала, 2",
+    "contact_phone": "+7 (929) 680-47-58"
+  }
+},
+{
+  "model": "foodcartapp.productcategory",
+  "pk": 1,
+  "fields": {
+    "name": "Бургер"
+  }
+},
+{
+  "model": "foodcartapp.productcategory",
+  "pk": 2,
+  "fields": {
+    "name": "Ролл"
+  }
+},
+{
+  "model": "foodcartapp.product",
+  "pk": 1,
+  "fields": {
+    "name": "Стейкхаус",
+    "category": 1,
+    "price": "269.00",
+    "image": "steak.jpg",
+    "special_status": false,
+    "description": "Стейкхаус – это сочетание нашей фирменной, приготовленной на огне 100% говядины с ломтиками бекона и соусом «Барбекю», майонезом, листьями свежего салата, помидором и хрустящим луком на воздушной було"
+  }
+},
+{
+  "model": "foodcartapp.product",
+  "pk": 2,
+  "fields": {
+    "name": "Лонг Чизбургер",
+    "category": 1,
+    "price": "219.00",
+    "image": "long_chiz.jpg",
+    "special_status": false,
+    "description": "Лонг Чизбургер – эталон в коллекции чизбургеров! Два приготовленных на огне бифштекса с двумя ломтиками слегка расплавленного сыра, хрустящими огурчиками, рубленым луком, горчицей и кетчупом на длинно"
+  }
+},
+{
+  "model": "foodcartapp.product",
+  "pk": 3,
+  "fields": {
+    "name": "Тройной Воппер",
+    "category": 1,
+    "price": "369.00",
+    "image": "triple_vopper.jpg",
+    "special_status": false,
+    "description": "ВОППЕР® — это вкуснейшая приготовленная на огне 100% говядина с сочными помидорами, свежим нарезанным листовым салатом, густым майонезом, хрустящими маринованными огурчиками и свежим луком на нежной б"
+  }
+},
+{
+  "model": "foodcartapp.product",
+  "pk": 4,
+  "fields": {
+    "name": "Беконайзер",
+    "category": 1,
+    "price": "319.00",
+    "image": "beconizer.jpg",
+    "special_status": false,
+    "description": "Встречай самый внушительный бургер в коллекции Бургер Кинг. Много мяса, много бекона и много сыра - все, как ты любишь, и ничего лишнего!"
+  }
+},
+{
+  "model": "foodcartapp.product",
+  "pk": 5,
+  "fields": {
+    "name": "Фиш Ролл",
+    "category": 2,
+    "price": "199.00",
+    "image": "fish_roll.jpg",
+    "special_status": false,
+    "description": "Наш новый ролл с аппетитной котлеткой из филе белой рыбы, с фирменным соусом, маринованными огурчиками и хрустящим салатом. Легкое рыбное удовольствие!"
+  }
+},
+{
+  "model": "foodcartapp.product",
+  "pk": 6,
+  "fields": {
+    "name": "Шримп Ролл",
+    "category": 2,
+    "price": "209.00",
+    "image": "shrimp_roll_uWH7HbB.jpg",
+    "special_status": false,
+    "description": "Легкий ролл с нежными королевскими креветками в хрустящей панировке, свежий салат Айсберг и ломтик сыра в пшеничной лепешке под фирменным соусом «Кинг». Внимание! Блюдо содержит аллергены – морепродук"
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 86,
+  "fields": {
+    "status": "pending",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "Сельская",
+    "comment": "",
+    "created_at": "2025-06-23T14:23:20.843Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 88,
+  "fields": {
+    "status": "pending",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "1123123123123",
+    "comment": "",
+    "created_at": "2025-06-23T14:46:37.512Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 89,
+  "fields": {
+    "status": "pending",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "Сельская",
+    "comment": "",
+    "created_at": "2025-06-23T14:46:50.665Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 90,
+  "fields": {
+    "status": "pending",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "Сельская",
+    "comment": "",
+    "created_at": "2025-06-23T15:09:27.770Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 92,
+  "fields": {
+    "status": "pending",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "Ольховатка",
+    "comment": "",
+    "created_at": "2025-06-23T15:10:18.793Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 93,
+  "fields": {
+    "status": "pending",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "КоляКоля",
+    "comment": "",
+    "created_at": "2025-06-23T17:08:10.225Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 96,
+  "fields": {
+    "status": "pending",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "Воронеж",
+    "comment": "",
+    "created_at": "2025-06-23T17:22:32.793Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 98,
+  "fields": {
+    "status": "pending",
+    "firstname": "Василиса",
+    "lastname": "Мандрикай",
+    "phonenumber": "+79099009900",
+    "address": "г. Воронеж, ул. Лизюкова, 24",
+    "comment": "",
+    "created_at": "2025-07-07T13:09:12.448Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 97,
+  "fields": {
+    "status": "completed",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "ЫЫЫЫЫЫ",
+    "comment": "",
+    "created_at": "2025-06-23T17:23:00Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 91,
+  "fields": {
+    "status": "completed",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "Asdasdasdasd",
+    "comment": "",
+    "created_at": "2025-06-23T15:09:50Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.order",
+  "pk": 99,
+  "fields": {
+    "status": "pending",
+    "firstname": "Роман",
+    "lastname": "Грачев",
+    "phonenumber": "+79038536565",
+    "address": "Сельская",
+    "comment": "",
+    "created_at": "2025-07-09T14:31:51.615Z",
+    "called_at": null,
+    "delivered_at": null,
+    "payment": "cash",
+    "restaurant_prepare": null
+  }
+},
+{
+  "model": "foodcartapp.orderitem",
+  "pk": 156,
+  "fields": {
+    "product": 3,
+    "order": 99,
+    "quantity": 4,
+    "price_at_order": "1476.00"
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 1,
+  "fields": {
+    "restaurant": 1,
+    "product": 1,
+    "availability": false
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 2,
+  "fields": {
+    "restaurant": 2,
+    "product": 1,
+    "availability": true
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 3,
+  "fields": {
+    "restaurant": 3,
+    "product": 1,
+    "availability": true
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 4,
+  "fields": {
+    "restaurant": 1,
+    "product": 2,
+    "availability": true
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 5,
+  "fields": {
+    "restaurant": 2,
+    "product": 2,
+    "availability": false
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 6,
+  "fields": {
+    "restaurant": 3,
+    "product": 2,
+    "availability": true
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 7,
+  "fields": {
+    "restaurant": 1,
+    "product": 3,
+    "availability": true
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 8,
+  "fields": {
+    "restaurant": 3,
+    "product": 4,
+    "availability": true
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 9,
+  "fields": {
+    "restaurant": 3,
+    "product": 5,
+    "availability": true
+  }
+},
+{
+  "model": "foodcartapp.restaurantmenuitem",
+  "pk": 10,
+  "fields": {
+    "restaurant": 3,
+    "product": 6,
+    "availability": true
+  }
+},
+{
+  "model": "locationapp.location",
+  "pk": 1,
+  "fields": {
+    "location_address": "Москва, ул. Новый Арбат, 15",
+    "longitude": "37.593066",
+    "latitude": "55.751933",
+    "created_at": "2025-07-07"
+  }
+},
+{
+  "model": "locationapp.location",
+  "pk": 2,
+  "fields": {
+    "location_address": "Москва, Цветной бульвар, 11с2",
+    "longitude": "37.620429",
+    "latitude": "55.770076",
+    "created_at": "2025-07-07"
+  }
+},
+{
+  "model": "locationapp.location",
+  "pk": 3,
+  "fields": {
+    "location_address": "Москва, пл. Киевского Вокзала, 2",
+    "longitude": "37.566072",
+    "latitude": "55.744637",
+    "created_at": "2025-07-07"
+  }
+}
+]

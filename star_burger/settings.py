@@ -16,8 +16,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
+
+ROLLBAR = {
+    'access_token': env('ROLLBAR_TOKEN'),
+    'environment': env.str('ENVIRONMENT', 'development'),
+    'branch': 'master',
+    'root': BASE_DIR,
+}
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -43,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -87,9 +94,12 @@ MEDIA_URL = '/media/'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
     )
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

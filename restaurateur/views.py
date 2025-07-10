@@ -154,3 +154,4 @@ def view_orders(request):
         template_name='order_items.html',
         context={"order_items": order_items}
     )
+
